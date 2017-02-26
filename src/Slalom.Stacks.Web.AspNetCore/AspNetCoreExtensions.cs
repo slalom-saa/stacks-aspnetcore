@@ -1,19 +1,54 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using Autofac;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using Autofac;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using Slalom.Stacks.Messaging;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
+    /// <summary>
+    /// Extension methods for configuration AspNetCore blocks.
+    /// </summary>
     public static class AspNetCoreExtensions
     {
+        /// <summary>
+        /// Starts and runs an API to access the stack.
+        /// </summary>
+        /// <param name="stack">The this instance.</param>
+        /// <param name="configuration">The configuration routine.</param>
+        public static Stack RunHost(this Stack stack, Action<AspNetCoreOptions> configuration = null)
+        {
+            var options = new AspNetCoreOptions();
+            configuration?.Invoke(options);
+
+            RootStartup.Stack = stack;
+            var builder = new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseIISIntegration()
+                .UseStartup<RootStartup>();
+
+            if (options.Urls?.Any() ?? false)
+            {
+                builder.UseUrls(options.Urls);
+            }
+
+            builder.Build().Run();
+
+            return stack;
+        }
+
+        /// <summary>
+        /// Configures the application to use Stacks.
+        /// </summary>
+        /// <param name="app">The application to configure.</param>
+        /// <param name="stack">The current stack.</param>
+        /// <returns>This instance for method chaining.</returns>
         public static IApplicationBuilder UseStacks(this IApplicationBuilder app, Stack stack)
         {
             app.Use(async (context, next) =>
@@ -74,6 +109,12 @@ namespace Slalom.Stacks.Web.AspNetCore
             return app;
         }
 
+        /// <summary>
+        /// Configures the application to use Stacks.
+        /// </summary>
+        /// <param name="app">The application to configure.</param>
+        /// <param name="configuration">The configuration routine.</param>
+        /// <returns>This instance for method chaining.</returns>
         public static IApplicationBuilder UseStacks(this IApplicationBuilder app, Action<Stack> configuration = null)
         {
             var stack = new Stack();
