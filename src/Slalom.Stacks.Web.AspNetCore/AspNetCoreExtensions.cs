@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
-using Autofac;
 using System.Linq;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Slalom.Stacks.Messaging;
+using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
@@ -21,7 +22,7 @@ namespace Slalom.Stacks.Web.AspNetCore
         /// </summary>
         /// <param name="stack">The this instance.</param>
         /// <param name="configuration">The configuration routine.</param>
-        public static Stack RunHost(this Stack stack, Action<AspNetCoreOptions> configuration = null)
+        public static Stack RunWebHost(this Stack stack, Action<AspNetCoreOptions> configuration = null)
         {
             var options = new AspNetCoreOptions();
             configuration?.Invoke(options);
@@ -54,7 +55,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path.Value.Trim('/');
-                var registry = stack.Container.Resolve<LocalRegistry>();
+                var registry = stack.GetServices();
                 if (registry.Find(path) != null)
                 {
                     using (var stream = new MemoryStream())
@@ -64,41 +65,7 @@ namespace Slalom.Stacks.Web.AspNetCore
                         var content = Encoding.UTF8.GetString(stream.ToArray());
 
                         var result = await stack.Send(path, content);
-                        if (result.ValidationErrors.Any())
-                        {
-                            using (var inner = new MemoryStream(Encoding.UTF32.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
-                            {
-                                context.Response.ContentType = "application/json";
-                                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                                context.Response.ContentLength = inner.ToArray().Count();
-                                inner.CopyTo(context.Response.Body);
-                            }
-                        }
-                        else if (!result.IsSuccessful)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            using (var inner = new MemoryStream(Encoding.UTF32.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId))))
-                            {
-                                context.Response.ContentType = "application/json";
-                                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                                context.Response.ContentLength = inner.ToArray().Count();
-                                inner.CopyTo(context.Response.Body);
-                            }
-                        }
-                        else if (result.Response != null)
-                        {
-                            using (var inner = new MemoryStream(Encoding.UTF32.GetBytes(JsonConvert.SerializeObject(result.Response))))
-                            {
-                                context.Response.ContentType = "application/json";
-                                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                                context.Response.ContentLength = inner.ToArray().Count();
-                                inner.CopyTo(context.Response.Body);
-                            }
-                        }
-                        else
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.NoContent;
-                        }
+                        HandleResult(result, context);
                     }
                 }
                 else
@@ -121,7 +88,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path.Value.Trim('/');
-                var registry = stack.Container.Resolve<LocalRegistry>();
+                var registry = stack.GetServices();
                 if (registry.Find(path) != null)
                 {
                     using (var stream = new MemoryStream())
@@ -131,41 +98,8 @@ namespace Slalom.Stacks.Web.AspNetCore
                         var content = Encoding.UTF8.GetString(stream.ToArray());
 
                         var result = await stack.Send(path, content);
-                        if (result.ValidationErrors.Any())
-                        {
-                            using (var inner = new MemoryStream(Encoding.UTF32.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
-                            {
-                                context.Response.ContentType = "application/json";
-                                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                                context.Response.ContentLength = inner.ToArray().Count();
-                                inner.CopyTo(context.Response.Body);
-                            }
-                        }
-                        else if (!result.IsSuccessful)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            using (var inner = new MemoryStream(Encoding.UTF32.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId))))
-                            {
-                                context.Response.ContentType = "application/json";
-                                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                                context.Response.ContentLength = inner.ToArray().Count();
-                                inner.CopyTo(context.Response.Body);
-                            }
-                        }
-                        else if (result.Response != null)
-                        {
-                            using (var inner = new MemoryStream(Encoding.UTF32.GetBytes(JsonConvert.SerializeObject(result.Response))))
-                            {
-                                context.Response.ContentType = "application/json";
-                                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                                context.Response.ContentLength = inner.ToArray().Count();
-                                inner.CopyTo(context.Response.Body);
-                            }
-                        }
-                        else
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.NoContent;
-                        }
+
+                        HandleResult(result, context);
                     }
                 }
                 else
@@ -175,6 +109,45 @@ namespace Slalom.Stacks.Web.AspNetCore
             });
             configuration?.Invoke(stack);
             return app;
+        }
+
+        private static void HandleResult(MessageResult result, HttpContext context)
+        {
+            if (result.ValidationErrors.Any())
+            {
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
+                {
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                    context.Response.ContentLength = inner.ToArray().Count();
+                    inner.CopyTo(context.Response.Body);
+                }
+            }
+            else if (!result.IsSuccessful)
+            {
+                context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId))))
+                {
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    context.Response.ContentLength = inner.ToArray().Count();
+                    inner.CopyTo(context.Response.Body);
+                }
+            }
+            else if (result.Response != null)
+            {
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.Response))))
+                {
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    context.Response.ContentLength = inner.ToArray().Count();
+                    inner.CopyTo(context.Response.Body);
+                }
+            }
+            else
+            {
+                context.Response.StatusCode = (int) HttpStatusCode.NoContent;
+            }
         }
     }
 }
