@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Slalom.Stacks;
+using Slalom.Stacks.Logging;
 using Slalom.Stacks.Web.AspNetCore;
 
 namespace ConsoleClient
@@ -14,6 +15,8 @@ namespace ConsoleClient
         {
             using (var stack = new Stack())
             {
+                stack.UseSimpleConsoleLogging();
+
                 stack.RunWebHost();
             }
         }

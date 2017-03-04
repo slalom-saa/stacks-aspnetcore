@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EFD11F14-E82A-4EC8-9898-B34083DE79D1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B7D3459D-8D7E-4C90-B84C-014ED4F7A985}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{B7D3459D-8D7E-4C90-B84C-014ED4F7A985}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
 		assets\Package.ps1 = assets\Package.ps1

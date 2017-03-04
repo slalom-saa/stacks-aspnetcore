@@ -23,10 +23,10 @@ namespace ConsoleClient.Application.Products.Add
             {
                 await this.Domain.Remove(target);
 
-                //throw new ChainFailedException(command, stock);
+                throw new ChainFailedException(this.Message, stock);
             }
 
-            return new AddProductEvent();
+            return new AddProductEvent(target.Id);
         }
     }
 
@@ -47,10 +47,10 @@ namespace ConsoleClient.Application.Products.Add
             {
                 await this.Domain.Remove(target);
 
-                //throw new ChainFailedException(command, stock);
+                throw new ChainFailedException(this.Message, stock);
             }
 
-            return new AddProductEvent();
+            return new AddProductEvent(target.Id);
         }
     }
 }
