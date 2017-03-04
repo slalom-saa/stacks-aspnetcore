@@ -9,21 +9,21 @@ namespace ConsoleClient.Application.Products.Add
     /// <summary>
     /// Adds a product.  Yay.
     /// </summary>
-    [Path("products/add")]
+    [EndPoint("products/add")]
     public class AddProduct : UseCase<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
         {
             var target = new Product("name");
 
-            await this.Domain.AddAsync(target);
+            await this.Domain.Add(target);
 
             var stock = await this.Send(new StockProductCommand(command.Count));
             if (!stock.IsSuccessful)
             {
-                await this.Domain.RemoveAsync(target);
+                await this.Domain.Remove(target);
 
-                throw new ChainFailedException(command, stock);
+                //throw new ChainFailedException(command, stock);
             }
 
             return new AddProductEvent();
@@ -33,21 +33,21 @@ namespace ConsoleClient.Application.Products.Add
     /// <summary>
     /// Adds a product.  Yay.  Version 2.
     /// </summary>
-    [Path("products/add", Version = 2)]
+    [EndPoint("products/add", Version = 2)]
     public class AddProduct_v2 : UseCase<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
         {
             var target = new Product("name");
 
-            await this.Domain.AddAsync(target);
+            await this.Domain.Add(target);
 
             var stock = await this.Send(new StockProductCommand(command.Count));
             if (!stock.IsSuccessful)
             {
-                await this.Domain.RemoveAsync(target);
+                await this.Domain.Remove(target);
 
-                throw new ChainFailedException(command, stock);
+                //throw new ChainFailedException(command, stock);
             }
 
             return new AddProductEvent();

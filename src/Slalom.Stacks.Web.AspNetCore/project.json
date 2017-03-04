@@ -24,7 +24,7 @@
     "Microsoft.AspNetCore.Hosting": "1.1.0",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.1.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
-    "Slalom.Stacks": "1.4.47"
+    "Slalom.Stacks": "1.4.64"
   },
   "frameworks": {
     "net461": {
