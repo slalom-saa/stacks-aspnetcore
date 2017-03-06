@@ -6,6 +6,7 @@ using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Messaging.Exceptions;
 using Slalom.Stacks.Messaging.Validation;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Registry;
 using Slalom.Stacks.Validation;
 
 namespace ConsoleClient.Application.Products.Add
@@ -14,7 +15,7 @@ namespace ConsoleClient.Application.Products.Add
     /// Adds a product.  Yay.
     /// </summary>
     [EndPoint("products/add")]
-    public class AddProduct : UseCase<AddProductCommand, AddProductEvent>
+    public class AddProduct : Service<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
         {
@@ -27,7 +28,7 @@ namespace ConsoleClient.Application.Products.Add
             {
                 await this.Domain.Remove(target);
 
-                throw new ChainFailedException(this.Message, stock);
+                throw new ChainFailedException(this.Request.Message, stock);
             }
 
             return new AddProductEvent(target.Id);
@@ -38,7 +39,7 @@ namespace ConsoleClient.Application.Products.Add
     /// Adds a product.  Yay.  Version 2.
     /// </summary>
     [EndPoint("products/add", Version = 2)]
-    public class AddProduct_v2 : UseCase<AddProductCommand, AddProductEvent>
+    public class AddProduct_v2 : Service<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
         {
@@ -51,7 +52,7 @@ namespace ConsoleClient.Application.Products.Add
             {
                 await this.Domain.Remove(target);
 
-                throw new ChainFailedException(this.Message, stock);
+                throw new ChainFailedException(this.Request.Message, stock);
             }
 
             return new AddProductEvent(target.Id);

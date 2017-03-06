@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Registry;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {

@@ -2,7 +2,7 @@
 
 namespace ConsoleClient.Application.Products.Add
 {
-    public class AddProductEvent : Event
+    public class AddProductEvent : EventData
     {
         public string ProductId { get; }
 

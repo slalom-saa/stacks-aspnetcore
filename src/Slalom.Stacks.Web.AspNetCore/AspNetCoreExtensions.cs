@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Registry;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
