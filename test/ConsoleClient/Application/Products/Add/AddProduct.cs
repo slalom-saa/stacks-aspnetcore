@@ -1,8 +1,12 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ConsoleClient.Application.Products.Stock;
 using ConsoleClient.Domain.Products;
 using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Messaging.Exceptions;
+using Slalom.Stacks.Messaging.Validation;
+using Slalom.Stacks.Services;
+using Slalom.Stacks.Validation;
 
 namespace ConsoleClient.Application.Products.Add
 {

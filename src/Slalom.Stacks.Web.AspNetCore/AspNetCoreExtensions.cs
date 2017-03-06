@@ -75,41 +75,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             });
             return app;
         }
-
-        /// <summary>
-        /// Configures the application to use Stacks.
-        /// </summary>
-        /// <param name="app">The application to configure.</param>
-        /// <param name="configuration">The configuration routine.</param>
-        /// <returns>This instance for method chaining.</returns>
-        public static IApplicationBuilder UseStacks(this IApplicationBuilder app, Action<Stack> configuration = null)
-        {
-            var stack = new Stack();
-            app.Use(async (context, next) =>
-            {
-                var path = context.Request.Path.Value.Trim('/');
-                var registry = stack.GetServices();
-                if (registry.Find(path) != null)
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        context.Request.Body.CopyTo(stream);
-
-                        var content = Encoding.UTF8.GetString(stream.ToArray());
-
-                        var result = await stack.Send(path, content);
-
-                        HandleResult(result, context);
-                    }
-                }
-                else
-                {
-                    await next.Invoke();
-                }
-            });
-            configuration?.Invoke(stack);
-            return app;
-        }
+       
 
         private static void HandleResult(MessageResult result, HttpContext context)
         {
