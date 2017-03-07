@@ -64,7 +64,10 @@ namespace Slalom.Stacks.Web.AspNetCore
                         context.Request.Body.CopyTo(stream);
 
                         var content = Encoding.UTF8.GetString(stream.ToArray());
-
+                        if (String.IsNullOrWhiteSpace(content))
+                        {
+                            content = null;
+                        }
                         var result = await stack.Send(path, content);
                         HandleResult(result, context);
                     }
