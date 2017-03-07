@@ -1,4 +1,9 @@
-﻿param (
+﻿<#
+.SYNOPSIS
+    Packages the ASP.NET Core Messaging packages.
+#>
+
+param (
     $Configuration = "DEBUG",
     $IncrementVersion = $true
 )

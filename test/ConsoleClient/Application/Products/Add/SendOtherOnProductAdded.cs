@@ -4,9 +4,9 @@ using Slalom.Stacks.Services;
 
 namespace ConsoleClient.Application.Products.Add
 {
-    public class SendOtherOnProductAdded : Service<AddProductEvent>
+    public class SendOtherOnProductAdded : EndPoint<AddProductEvent>
     {
-        public override void Execute(AddProductEvent message)
+        public override void Receive(AddProductEvent message)
         {
             Console.WriteLine("Sending other.");
         }

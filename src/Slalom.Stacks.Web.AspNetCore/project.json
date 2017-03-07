@@ -1,5 +1,5 @@
 {
-  "version": "1.4.10-*",
+  "version": "1.4.11-*",
   "authors": [
     "Slalom Architect Academy"
   ],
@@ -24,7 +24,7 @@
     "Microsoft.AspNetCore.Hosting": "1.1.0",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.1.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
-    "Slalom.Stacks": "1.4.83"
+    "Slalom.Stacks": "1.4.84"
   },
   "frameworks": {
     "net461": {

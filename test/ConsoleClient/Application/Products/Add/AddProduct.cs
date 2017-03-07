@@ -15,9 +15,9 @@ namespace ConsoleClient.Application.Products.Add
     /// Adds a product.  Yay.
     /// </summary>
     [EndPoint("products/add")]
-    public class AddProduct : Service<AddProductCommand, AddProductEvent>
+    public class AddProduct : EndPoint<AddProductCommand, AddProductEvent>
     {
-        public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
+        public override async Task<AddProductEvent> ReceiveAsync(AddProductCommand command)
         {
             var target = new Product("name");
 
@@ -39,9 +39,9 @@ namespace ConsoleClient.Application.Products.Add
     /// Adds a product.  Yay.  Version 2.
     /// </summary>
     [EndPoint("products/add", Version = 2)]
-    public class AddProduct_v2 : Service<AddProductCommand, AddProductEvent>
+    public class AddProduct_v2 : EndPoint<AddProductCommand, AddProductEvent>
     {
-        public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
+        public override async Task<AddProductEvent> ReceiveAsync(AddProductCommand command)
         {
             var target = new Product("name");
 
