@@ -6,7 +6,7 @@ namespace ConsoleClient.Application.Products.Add
     /// <summary>
     /// Adds a product to the something.
     /// </summary>
-    public class AddProductCommand
+    public class AddProductCommand : Command
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AddProductCommand" /> class.

@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
 using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Registry;
 using Slalom.Stacks.Validation;
 
 namespace ConsoleClient.Application.Products.Stock
 {
-    public class StockProduct : EndPoint<StockProductCommand>
+    [EndPoint("none")]
+    public class StockProduct : UseCase<StockProductCommand>
     {
-        public override void Receive(StockProductCommand message)
+        public override void Execute(StockProductCommand message)
         {
             //throw new Exception("XX");
         }

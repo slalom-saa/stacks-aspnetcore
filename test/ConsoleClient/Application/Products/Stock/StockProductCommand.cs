@@ -2,11 +2,11 @@
 
 namespace ConsoleClient.Application.Products.Stock
 {
-    public class StockProductCommand
+    public class StockProductCommand : Command
     {
         public int ItemCount { get; }
 
-        public StockProductCommand(int itemCount)
+        public StockProductCommand(int itemCount) 
         {
             this.ItemCount = itemCount;
         }
