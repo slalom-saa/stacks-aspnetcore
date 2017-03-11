@@ -15,20 +15,20 @@ namespace ConsoleClient.Application.Products.Add
     /// Adds a product.  Yay.
     /// </summary>
     [EndPoint("products/add")]
-    public class AddProduct : EndPoint<AddProductCommand, AddProductEvent>
+    public class AddProduct : UseCase<AddProductCommand, AddProductEvent>
     {
-        public override async Task<AddProductEvent> ReceiveAsync(AddProductCommand command)
+        public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
         {
             var target = new Product("name");
 
             await this.Domain.Add(target);
 
-            var stock = await this.Send(new StockProductCommand(command.Count));
+            var stock = await this.Send("asdf", new StockProductCommand(command.Count));
             if (!stock.IsSuccessful)
             {
                 await this.Domain.Remove(target);
 
-                throw new ChainFailedException(this.Request.Message, stock);
+                throw new ChainFailedException(this.Request, stock);
             }
 
             return new AddProductEvent(target.Id);
@@ -39,20 +39,20 @@ namespace ConsoleClient.Application.Products.Add
     /// Adds a product.  Yay.  Version 2.
     /// </summary>
     [EndPoint("products/add", Version = 2)]
-    public class AddProduct_v2 : EndPoint<AddProductCommand, AddProductEvent>
+    public class AddProduct_v2 : UseCase<AddProductCommand, AddProductEvent>
     {
-        public override async Task<AddProductEvent> ReceiveAsync(AddProductCommand command)
+        public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
         {
             var target = new Product("name");
 
             await this.Domain.Add(target);
 
-            var stock = await this.Send(new StockProductCommand(command.Count));
+            var stock = await this.Send("sadfas", new StockProductCommand(command.Count));
             if (!stock.IsSuccessful)
             {
                 await this.Domain.Remove(target);
 
-                throw new ChainFailedException(this.Request.Message, stock);
+                throw new ChainFailedException(this.Request, stock);
             }
 
             return new AddProductEvent(target.Id);

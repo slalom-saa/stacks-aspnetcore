@@ -4,9 +4,9 @@ using Slalom.Stacks.Services;
 
 namespace ConsoleClient.Application.Products.Add
 {
-    public class SendEmailOnProductAdded : EndPoint<AddProductEvent>
+    public class SendEmailOnProductAdded : EventUseCase<AddProductEvent>
     {
-        public override void Receive(AddProductEvent message)
+        public override void Execute(AddProductEvent message)
         {
             Console.WriteLine("Sending mail.");
 
