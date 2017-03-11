@@ -5,7 +5,7 @@
 
 param (
     $Configuration = "DEBUG",
-    $IncrementVersion = $true
+    $IncrementVersion = $false
 )
 
 function Increment-Version() {
