@@ -5,7 +5,6 @@
   },
 
   "dependencies": {
-    "Microsoft.AspNetCore.Mvc.Core": "1.0.1",
     "Slalom.Stacks.Web.AspNetCore": {
       "target": "project"
     }
