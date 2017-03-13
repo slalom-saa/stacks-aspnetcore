@@ -45,7 +45,7 @@
     "embed": {
       "include": [
         "bower_components/swagger-ui/dist/**/*.*",
-        "Swagger/Swashbuckle.AspNetCore.SwaggerUI/Template/index.html"
+        "Swagger/UI/Template/index.html"
       ]
     },
     "additionalArguments": [

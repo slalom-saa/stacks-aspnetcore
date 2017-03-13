@@ -11,6 +11,22 @@ using Slalom.Stacks.Validation;
 
 namespace ConsoleClient.Application.Products.Add
 {
+    public class a_product_should_have_last_name : BusinessRule<AddProductCommand>
+    {
+        public override IEnumerable<ValidationError> Validate(AddProductCommand instance)
+        {
+            yield break;
+        }
+    }
+
+    public class a_product_should_have_first_name : BusinessRule<AddProductCommand>
+    {
+        public override IEnumerable<ValidationError> Validate(AddProductCommand instance)
+        {
+            yield break;
+        }
+    }
+
     /// <summary>
     /// Adds a product.  Yay.
     /// </summary>

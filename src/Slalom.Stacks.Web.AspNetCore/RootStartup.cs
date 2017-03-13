@@ -32,7 +32,11 @@ namespace Slalom.Stacks.Web.AspNetCore
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             Stack.Include(this);
-            //services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+                });
 
             Stack.Use(builder =>
             {
@@ -55,7 +59,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             app.UseSwaggerUI(c =>
             {
                 var services = Stack.GetServices().Hosts.SelectMany(e => e.Services).SelectMany(e => e.EndPoints).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
-                .Distinct().Where(e => e != null && !e.StartsWith("_"));
+                .Distinct().Where(e => e != null && !e.StartsWith("_")).OrderBy(e => e);
                 foreach (var service in services)
                 {
                     c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Swashbuckle.AspNetCore.Swagger
 {
@@ -8,7 +9,6 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         internal static JsonSerializer Create(IOptions<MvcJsonOptions> applicationJsonOptions)
         {
-            // TODO: Should this handle case where mvcJsonOptions.Value == null?
             return new JsonSerializer
             {
                 NullValueHandling = NullValueHandling.Ignore,

@@ -60,7 +60,6 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         private Stream CreateParameterizedStream()
         {
             var names = _assembly.GetManifestResourceNames();
-            Console.WriteLine(names);
             using (var templateStream = _assembly.GetManifestResourceStream(_resourcePath))
             {
                 var templateText = new StreamReader(templateStream).ReadToEnd();

@@ -83,6 +83,16 @@ namespace Slalom.Stacks.Web.AspNetCore
 
         private static void HandleResult(MessageResult result, HttpContext context)
         {
+            if (result.ValidationErrors.Any(e => e.Type == Validation.ValidationType.Input))
+            {
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
+                {
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                    context.Response.ContentLength = inner.ToArray().Count();
+                    inner.CopyTo(context.Response.Body);
+                }
+            }
             if (result.ValidationErrors.Any())
             {
                 using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))

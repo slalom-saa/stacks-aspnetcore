@@ -5,7 +5,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Swashbuckle.AspNetCore.Swagger
 {
-    public class SwaggerContractResolver : DefaultContractResolver
+    public class SwaggerContractResolver : CamelCasePropertyNamesContractResolver
     {
         private readonly JsonConverter _applicationTypeConverter;
 
