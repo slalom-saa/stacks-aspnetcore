@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -14,37 +15,25 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Registry;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
-    public class ApiProvider : IApiDescriptionGroupCollectionProvider
+    public class GetHealthCommand
     {
-        public ApiDescriptionGroupCollection ApiDescriptionGroups => this.Get();
-
-        public ApiDescriptionGroupCollection Get()
-        {
-            var desc = new ApiDescription();
-            desc.ActionDescriptor = new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor();
-            //desc.GroupName = "Fred";
-            desc.HttpMethod = "GET";
-            desc.ActionDescriptor = new ControllerActionDescriptor
-            {
-                ActionName = "GetME"
-            };
-
-            var items = new List<ApiDescription> { desc };
-
-            var list = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("group", items) };
-
-            var group = new ApiDescriptionGroupCollection(list, 1);
-
-            return group;
-        }
     }
 
+    [EndPoint("_systems/health")]
+    public class HealthCheck : SystemEndPoint<GetHealthCommand, string>
+    {
+        public override Task<string> Execute(GetHealthCommand instance)
+        {
+            return Task.FromResult("Asdf");
+        }
+    }
 
     internal class RootStartup
     {
@@ -54,12 +43,10 @@ namespace Slalom.Stacks.Web.AspNetCore
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            Stack.Use(builder =>
-            {
-                builder.RegisterType<ApiProvider>().AsImplementedInterfaces();
-            });
-
+            Stack.Include(this);
             //services.AddMvc();
+
+
 
             services.AddSwaggerGen(c =>
             {
@@ -69,6 +56,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             Stack.Use(builder =>
             {
                 builder.Populate(services);
+                //builder.Register(c => new HealthCheck()).AsImplementedInterfaces();
             });
 
             return new AutofacServiceProvider(Stack.Container);
@@ -88,12 +76,12 @@ namespace Slalom.Stacks.Web.AspNetCore
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Method == "GET" && context.Request.Path.Value.Trim('/') == "_services")
+                if (context.Request.Method == "GET" && context.Request.Path.Value.Trim('/') == "_systems/services")
                 {
                     using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Stack.CreatePublicRegistry(context.Request.Scheme + "://" + context.Request.Host)))))
                     {
                         context.Response.ContentType = "application/json";
-                        context.Response.StatusCode = (int) HttpStatusCode.OK;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
                         context.Response.ContentLength = inner.ToArray().Count();
                         inner.CopyTo(context.Response.Body);
                     }
