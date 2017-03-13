@@ -99,7 +99,7 @@ namespace Slalom.Stacks.Web.AspNetCore
                 using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId))))
                 {
                     context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                     context.Response.ContentLength = inner.ToArray().Count();
                     inner.CopyTo(context.Response.Body);
                 }

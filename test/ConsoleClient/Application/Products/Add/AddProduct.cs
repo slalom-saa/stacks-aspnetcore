@@ -52,7 +52,7 @@ namespace ConsoleClient.Application.Products.Add
             {
                 await this.Domain.Remove(target);
 
-                throw new ChainFailedException(this.Request, stock);
+           //     throw new ChainFailedException(this.Request, stock);
             }
 
             return new AddProductEvent(target.Id);

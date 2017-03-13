@@ -6,11 +6,18 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
+using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Services.Registry;
+using Slalom.Stacks.Text;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Swashbuckle.AspNetCore.SwaggerGen
 {
+    public class SwaggerCommand : Command
+    {
+        public string Name { get; set; }
+    }
+
     public class StacksSwaggerProvider : ISwaggerProvider
     {
         private readonly ServiceRegistry _services;
@@ -22,34 +29,63 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
 
         public SwaggerDocument GetSwagger(string documentName, string host = null, string basePath = null, string[] schemes = null)
         {
-            var operation = new Operation
-            {
-                Tags = new[] { "Yello" },
-                OperationId = "GET ME",
-                Consumes = new[] { "application/json" },
-                Produces = new[] { "application/json" },
-                Parameters = null, // parameters can be null but not empty
-                Responses = new Dictionary<string, Response>()
-            };
+            Console.WriteLine(_services);
 
-            var pathItem = new PathItem
-            {
-                Get = operation
-            };
+            var registry = new SchemaRegistry(new Newtonsoft.Json.JsonSerializerSettings());
+            var schemas = new Dictionary<string, Schema>();
 
-            var di = new Dictionary<string, PathItem>();
-            di.Add("0", pathItem);
+            var pathItems = new Dictionary<string, PathItem>();
+            foreach (var service in _services.CreatePublicRegistry(host).Hosts.SelectMany(e => e.Services))
+            {
+                foreach (var endPoint in service.EndPoints)
+                {
+                    var type = Type.GetType(endPoint.RequestType);
+                    var schema = registry.GetOrRegister(type);
+                    if (!schemas.ContainsKey(type.Name))
+                    {
+                        schemas.Add(type.Name, schema);
+                    }
+                    //schema.Example = new SwaggerCommand { Name = "sdaf" };
+
+                    var parameters = new List<IParameter>();
+                    parameters.Add(new BodyParameter { Name = "input", Schema = schema  });
+
+                    var paths = endPoint.Path.Split('/');
+                    var operation = new Operation
+                    {
+                        Tags = new[] { paths.Take(Math.Max(1, paths.Count() - 1)).Last().ToTitleCase() },
+                        OperationId = endPoint.RequestType.Split(',')[0].Split('.').Last().Replace("Command", "").ToDelimited("-"),
+                        Consumes = new[] { "application/json" },
+                        Produces = new[] { "application/json" },
+                        Parameters = parameters,
+                        Responses = new Dictionary<string, Response>()
+                    };
+
+                    var pathItem = new PathItem
+                    {
+                        Post = operation
+                    };
+
+                    if (!pathItems.ContainsKey("/" + endPoint.Path))
+                    {
+                        pathItems.Add("/" + endPoint.Path, pathItem);
+                    }
+                }
+            }
+           
 
             var swaggerDoc = new SwaggerDocument
             {
                 Info = new Info
                 {
-                    Title = "Hello"
+                    Title = documentName
                 },
-                Host = "asdf",
-                BasePath = "asdfasdf",
-                Paths = di,
-                //Definitions = schemaRegistry.Definitions,
+                Host = host,
+                //BasePath = "http://localhost:5000",
+                Paths = pathItems,
+                Definitions = schemas,
+                Schemes = new[] { "http" }
+
                 //SecurityDefinitions = _settings.SecurityDefinitions
             };
             return swaggerDoc;
@@ -298,7 +334,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             //    swaggerGeneratorSettings
             //);
 
-            return new StacksSwaggerProvider();
+            return new StacksSwaggerProvider(serviceProvider.GetService<ServiceRegistry>());
         }
 
         private SchemaRegistrySettings CreateSchemaRegistrySettings(IServiceProvider serviceProvider)

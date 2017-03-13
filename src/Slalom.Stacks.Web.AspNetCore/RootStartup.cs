@@ -63,7 +63,7 @@ namespace Slalom.Stacks.Web.AspNetCore
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("Shopping", new Info { Title = "Shopping API", Version = "v12" });
             });
 
             Stack.Use(builder =>
@@ -82,7 +82,7 @@ namespace Slalom.Stacks.Web.AspNetCore
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/Shopping/swagger.json", "Shopping API");
             });
 
             app.Use(async (context, next) =>
