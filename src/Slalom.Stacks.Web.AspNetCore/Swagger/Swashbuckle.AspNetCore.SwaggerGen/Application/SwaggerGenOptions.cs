@@ -29,15 +29,13 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
 
         public SwaggerDocument GetSwagger(string documentName, string host = null, string basePath = null, string[] schemes = null)
         {
-            Console.WriteLine(_services);
-
             var registry = new SchemaRegistry(new Newtonsoft.Json.JsonSerializerSettings());
             var schemas = new Dictionary<string, Schema>();
 
             var pathItems = new Dictionary<string, PathItem>();
             foreach (var service in _services.CreatePublicRegistry(host).Hosts.SelectMany(e => e.Services))
             {
-                foreach (var endPoint in service.EndPoints)
+                foreach (var endPoint in service.EndPoints.Where(e => e.Path.StartsWith(documentName, StringComparison.OrdinalIgnoreCase)))
                 {
                     var type = Type.GetType(endPoint.RequestType);
                     var schema = registry.GetOrRegister(type);
@@ -48,7 +46,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     //schema.Example = new SwaggerCommand { Name = "sdaf" };
 
                     var parameters = new List<IParameter>();
-                    parameters.Add(new BodyParameter { Name = "input", Schema = schema  });
+                    parameters.Add(new BodyParameter { Name = "input", Schema = schema });
 
                     var paths = endPoint.Path.Split('/');
                     var operation = new Operation
@@ -58,7 +56,8 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                         Consumes = new[] { "application/json" },
                         Produces = new[] { "application/json" },
                         Parameters = parameters,
-                        Responses = new Dictionary<string, Response>()
+                        Responses = new Dictionary<string, Response>(),
+                        Description = endPoint.Summary
                     };
 
                     var pathItem = new PathItem
@@ -66,26 +65,27 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                         Post = operation
                     };
 
-                    if (!pathItems.ContainsKey("/" + endPoint.Path))
+                    var path = "/" + String.Join("/", endPoint.Path.Split('/').Skip(1));
+
+                    if (!pathItems.ContainsKey(path))
                     {
-                        pathItems.Add("/" + endPoint.Path, pathItem);
+                        pathItems.Add(path, pathItem);
                     }
                 }
             }
-           
+
 
             var swaggerDoc = new SwaggerDocument
             {
                 Info = new Info
                 {
-                    Title = documentName
+                    Title = documentName.ToTitleCase() + " API"
                 },
                 Host = host,
-                //BasePath = "http://localhost:5000",
+                BasePath = "/" + documentName,
                 Paths = pathItems,
                 Definitions = schemas,
-                Schemes = new[] { "http" }
-
+                Schemes = schemes
                 //SecurityDefinitions = _settings.SecurityDefinitions
             };
             return swaggerDoc;

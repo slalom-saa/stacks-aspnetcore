@@ -38,7 +38,7 @@ namespace ConsoleClient.Application.Products.Add
     /// <summary>
     /// Adds a product.  Yay.  Version 2.
     /// </summary>
-    [EndPoint("products/add", Version = 2)]
+    [EndPoint("catalog/products/add", Version = 2)]
     public class AddProduct_v2 : UseCase<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
@@ -51,11 +51,9 @@ namespace ConsoleClient.Application.Products.Add
             if (!stock.IsSuccessful)
             {
                 await this.Domain.Remove(target);
-
-           //     throw new ChainFailedException(this.Request, stock);
             }
 
             return new AddProductEvent(target.Id);
         }
     }
-}
+}   
