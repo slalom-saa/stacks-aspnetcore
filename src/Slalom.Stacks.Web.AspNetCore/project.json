@@ -31,7 +31,7 @@
     "Microsoft.Extensions.DependencyModel": "1.1.1",
     "Microsoft.Extensions.FileProviders.Embedded": "1.0.1",
     "Microsoft.AspNetCore.StaticFiles": "1.0.2",
-    "Slalom.Stacks": "1.5.2"
+    "Slalom.Stacks": "1.5.3"
   },
   "frameworks": {
     "net461": {

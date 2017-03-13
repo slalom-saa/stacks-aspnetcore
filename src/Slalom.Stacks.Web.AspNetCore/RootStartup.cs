@@ -19,22 +19,10 @@ using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Registry;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
-    public class GetHealthCommand
-    {
-    }
-
-    [EndPoint("_systems/health")]
-    public class HealthCheck : SystemEndPoint<GetHealthCommand, string>
-    {
-        public override Task<string> Execute(GetHealthCommand instance)
-        {
-            return Task.FromResult("Asdf");
-        }
-    }
-
     internal class RootStartup
     {
         public IConfigurationRoot Configuration { get; private set; }
@@ -46,17 +34,11 @@ namespace Slalom.Stacks.Web.AspNetCore
             Stack.Include(this);
             //services.AddMvc();
 
-
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("Shopping", new Info { Title = "Shopping API" });
-            });
-
             Stack.Use(builder =>
             {
+                builder.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
                 builder.Populate(services);
-                //builder.Register(c => new HealthCheck()).AsImplementedInterfaces();
+
             });
 
             return new AutofacServiceProvider(Stack.Container);
@@ -68,10 +50,16 @@ namespace Slalom.Stacks.Web.AspNetCore
 
             app.UseSwagger();
 
+
+
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/catalog/swagger.json", "Catalog API");
-                c.SwaggerEndpoint("/swagger/shipping/swagger.json", "Shipping API");
+                var services = Stack.GetServices().Hosts.SelectMany(e => e.Services).SelectMany(e => e.EndPoints).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
+                .Distinct().Where(e => e != null && !e.StartsWith("_"));
+                foreach (var service in services)
+                {
+                    c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
+                }
             });
 
             app.Use(async (context, next) =>

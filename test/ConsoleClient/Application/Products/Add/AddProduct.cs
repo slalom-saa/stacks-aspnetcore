@@ -14,7 +14,7 @@ namespace ConsoleClient.Application.Products.Add
     /// <summary>
     /// Adds a product.  Yay.
     /// </summary>
-    [EndPoint("products/add")]
+    [EndPoint("catalog/products/add")]
     public class AddProduct : UseCase<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
