@@ -38,6 +38,10 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             {
                 foreach (var endPoint in service.EndPoints.Where(e => e.Path.StartsWith(documentName, StringComparison.OrdinalIgnoreCase)))
                 {
+                    if (!endPoint.Public)
+                    {
+                        continue;
+                    }
                     var type = Type.GetType(endPoint.RequestType);
                     var schema = registry.GetOrRegister(type);
 

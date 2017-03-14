@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -27,18 +26,21 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
-    public class WebRequestContext : Request
+    [EndPoint("_systems/api")]
+    public class GetApi : ServiceEndPoint
     {
-        private readonly IHttpContextAccessor _accessor;
+        private readonly ServiceRegistry _registry;
+        private readonly IHttpContextAccessor _context;
 
-        public WebRequestContext(IHttpContextAccessor accessor)
+        public GetApi(ServiceRegistry registry, IHttpContextAccessor context)
         {
-            _accessor = accessor;
+            _registry = registry;
+            _context = context;
         }
 
-        protected override ClaimsPrincipal GetUser()
+        public override void Execute()
         {
-            return _accessor.HttpContext?.User;
+            this.Respond(_registry.CreatePublicRegistry(_context.HttpContext.Request.Scheme + "://" + _context.HttpContext.Request.Host));
         }
     }
 
@@ -80,29 +82,12 @@ namespace Slalom.Stacks.Web.AspNetCore
 
             app.UseSwaggerUI(c =>
             {
-                var services = Stack.GetServices().Hosts.SelectMany(e => e.Services).SelectMany(e => e.EndPoints).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
+                var services = Stack.GetServices().Hosts.SelectMany(e => e.Services).Where(e => e.EndPoints.Any(x => x.Public)).SelectMany(e => e.EndPoints).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
                 .Distinct().Where(e => e != null && !e.StartsWith("_")).OrderBy(e => e);
                 foreach (var service in services)
                 {
-                    c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
-                }
-            });
 
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Method == "GET" && context.Request.Path.Value.Trim('/') == "_systems/services")
-                {
-                    using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Stack.CreatePublicRegistry(context.Request.Scheme + "://" + context.Request.Host)))))
-                    {
-                        context.Response.ContentType = "application/json";
-                        context.Response.StatusCode = (int)HttpStatusCode.OK;
-                        context.Response.ContentLength = inner.ToArray().Count();
-                        inner.CopyTo(context.Response.Body);
-                    }
-                }
-                else
-                {
-                    await next.Invoke();
+                    c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
                 }
             });
 
