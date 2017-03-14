@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Registry;
@@ -83,9 +84,14 @@ namespace Slalom.Stacks.Web.AspNetCore
 
         private static void HandleResult(MessageResult result, HttpContext context)
         {
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
             if (result.ValidationErrors.Any(e => e.Type == Validation.ValidationType.Input))
             {
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors, settings))))
                 {
                     context.Response.ContentType = "application/json";
                     context.Response.StatusCode = (int)HttpStatusCode.Conflict;
@@ -95,7 +101,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             }
             if (result.ValidationErrors.Any())
             {
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors, settings))))
                 {
                     context.Response.ContentType = "application/json";
                     context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
@@ -106,7 +112,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             else if (!result.IsSuccessful)
             {
                 context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId))))
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId, settings))))
                 {
                     context.Response.ContentType = "application/json";
                     context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
@@ -116,7 +122,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             }
             else if (result.Response != null)
             {
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.Response))))
+                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.Response, settings))))
                 {
                     context.Response.ContentType = "application/json";
                     context.Response.StatusCode = (int) HttpStatusCode.OK;

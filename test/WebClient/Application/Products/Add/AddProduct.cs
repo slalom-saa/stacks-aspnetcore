@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ConsoleClient.Application.Products.Stock;
-using ConsoleClient.Domain.Products;
-using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Messaging.Exceptions;
 using Slalom.Stacks.Messaging.Validation;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Registry;
 using Slalom.Stacks.Validation;
+using WebClient.Application.Products.Stock;
+using WebClient.Domain.Products;
 
-namespace ConsoleClient.Application.Products.Add
+namespace WebClient.Application.Products.Add
 {
     public class a_product_should_have_last_name : BusinessRule<AddProductCommand>
     {

@@ -32,7 +32,6 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
             registry.GetOrRegister(typeof(ValidationError));
-            registry.GetOrRegister(typeof(List<ValidationError>));
 
             var pathItems = new Dictionary<string, PathItem>();
             foreach (var service in _services.CreatePublicRegistry(host).Hosts.SelectMany(e => e.Services))
@@ -55,7 +54,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                         var responseSchema = registry.GetOrRegister(responseType);
                         responses.Add("200", new Response
                         {
-                            Description = responseType.GetComments().Summary,
+                            Description = responseType.GetComments()?.Summary,
                             Schema = responseSchema
                         });
 
@@ -90,7 +89,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                         builder.Clear();
                         foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Security))
                         {
-                            builder.AppendLine(source.Name.ToTitleCase());
+                            builder.AppendLine(source.Name.ToTitleCase() + ".    ");
                         }
                         if (builder.Length > 0)
                         {
