@@ -87,6 +87,10 @@ namespace Slalom.Stacks.Web.AspNetCore
             {
                 Respond(context, result.ValidationErrors, HttpStatusCode.BadRequest);
             }
+            if (result.ValidationErrors.Any(e => e.Type == ValidationType.Security))
+            {
+                Respond(context, result.ValidationErrors, HttpStatusCode.Unauthorized);
+            }
             else if (result.ValidationErrors.Any())
             {
                 Respond(context, result.ValidationErrors, HttpStatusCode.Conflict);
