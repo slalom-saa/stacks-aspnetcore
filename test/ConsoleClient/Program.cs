@@ -15,9 +15,12 @@ using Slalom.Stacks.Text;
 using Slalom.Stacks.Web.AspNetCore;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ConsoleClient
 {
+   
+
     public class Program
     {
         public static void Main(string[] args)

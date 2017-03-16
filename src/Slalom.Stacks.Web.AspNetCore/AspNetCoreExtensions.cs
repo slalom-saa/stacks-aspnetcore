@@ -97,7 +97,7 @@ namespace Slalom.Stacks.Web.AspNetCore
             }
             else if (!result.IsSuccessful)
             {
-                var message = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId));
+                var message = "An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId;
                 Respond(context, message, HttpStatusCode.InternalServerError);
             }
             else if (result.Response != null)

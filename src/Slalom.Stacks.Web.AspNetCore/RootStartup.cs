@@ -10,6 +10,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +27,16 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
+    [Route("some")]
+    public class Go
+    {
+        [HttpGet]
+        public string Get()
+        {
+            return "asdfa";
+        }
+    }
+
     [EndPoint("_systems/api")]
     public class GetApi : ServiceEndPoint
     {
@@ -56,7 +67,6 @@ namespace Slalom.Stacks.Web.AspNetCore
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
-
             services.AddMvc()
                 .AddJsonOptions(options =>
                 {
@@ -76,7 +86,7 @@ namespace Slalom.Stacks.Web.AspNetCore
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            //app.UseMvc();
+            app.UseMvc();
 
             app.UseSwagger();
 
