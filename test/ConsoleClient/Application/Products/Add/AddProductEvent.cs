@@ -3,6 +3,9 @@ using Slalom.Stacks.Messaging.Events;
 
 namespace ConsoleClient.Application.Products.Add
 {
+    /// <summary>
+    /// Class AddProductEvent.
+    /// </summary>
     public class AddProductEvent : Event
     {
         public string ProductId { get; }

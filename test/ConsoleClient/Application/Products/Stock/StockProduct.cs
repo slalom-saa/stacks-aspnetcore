@@ -6,7 +6,7 @@ using Slalom.Stacks.Validation;
 
 namespace ConsoleClient.Application.Products.Stock
 {
-    [EndPoint("none")]
+    [EndPoint("shipping/products/stock")]
     public class StockProduct : UseCase<StockProductCommand>
     {
         public override void Execute(StockProductCommand message)

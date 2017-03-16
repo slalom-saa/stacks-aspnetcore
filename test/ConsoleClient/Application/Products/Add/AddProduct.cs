@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ConsoleClient.Application.Products.Stock;
@@ -11,10 +12,35 @@ using Slalom.Stacks.Validation;
 
 namespace ConsoleClient.Application.Products.Add
 {
+    public class a_product_should_have_last_name : BusinessRule<AddProductCommand>
+    {
+        public override IEnumerable<ValidationError> Validate(AddProductCommand instance)
+        {
+            yield break;
+        }
+    }
+
+    public class a_product_should_have_first_name : BusinessRule<AddProductCommand>
+    {
+        public override IEnumerable<ValidationError> Validate(AddProductCommand instance)
+        {
+            yield break;
+        }
+    }
+
+    public class user_must_be_registered : SecurityRule<AddProductCommand>
+    {
+        public override IEnumerable<ValidationError> Validate(AddProductCommand instance)
+        {
+            Console.WriteLine(this.User?.Identity.Name);
+            yield break;
+        }
+    }
+
     /// <summary>
     /// Adds a product.  Yay.
     /// </summary>
-    [EndPoint("products/add")]
+    [EndPoint("catalog/products/add")]
     public class AddProduct : UseCase<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
@@ -38,7 +64,7 @@ namespace ConsoleClient.Application.Products.Add
     /// <summary>
     /// Adds a product.  Yay.  Version 2.
     /// </summary>
-    [EndPoint("products/add", Version = 2)]
+    [EndPoint("catalog/products/add", Version = 2)]
     public class AddProduct_v2 : UseCase<AddProductCommand, AddProductEvent>
     {
         public override async Task<AddProductEvent> ExecuteAsync(AddProductCommand command)
@@ -51,11 +77,9 @@ namespace ConsoleClient.Application.Products.Add
             if (!stock.IsSuccessful)
             {
                 await this.Domain.Remove(target);
-
-                throw new ChainFailedException(this.Request, stock);
             }
 
             return new AddProductEvent(target.Id);
         }
     }
-}
+}   

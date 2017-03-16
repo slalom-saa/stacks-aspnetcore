@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.Messaging;
-using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Registry;
+using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Web.AspNetCore
 {
@@ -64,7 +65,7 @@ namespace Slalom.Stacks.Web.AspNetCore
                         context.Request.Body.CopyTo(stream);
 
                         var content = Encoding.UTF8.GetString(stream.ToArray());
-                        if (String.IsNullOrWhiteSpace(content))
+                        if (string.IsNullOrWhiteSpace(content))
                         {
                             content = null;
                         }
@@ -79,44 +80,49 @@ namespace Slalom.Stacks.Web.AspNetCore
             });
             return app;
         }
-       
 
         private static void HandleResult(MessageResult result, HttpContext context)
         {
-            if (result.ValidationErrors.Any())
+            if (result.ValidationErrors.Any(e => e.Type == ValidationType.Input))
             {
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.ValidationErrors))))
-                {
-                    context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
-                    context.Response.ContentLength = inner.ToArray().Count();
-                    inner.CopyTo(context.Response.Body);
-                }
+                Respond(context, result.ValidationErrors, HttpStatusCode.BadRequest);
+            }
+            if (result.ValidationErrors.Any(e => e.Type == ValidationType.Security))
+            {
+                Respond(context, result.ValidationErrors, HttpStatusCode.Unauthorized);
+            }
+            else if (result.ValidationErrors.Any())
+            {
+                Respond(context, result.ValidationErrors, HttpStatusCode.Conflict);
             }
             else if (!result.IsSuccessful)
             {
-                context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId))))
-                {
-                    context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = (int) HttpStatusCode.OK;
-                    context.Response.ContentLength = inner.ToArray().Count();
-                    inner.CopyTo(context.Response.Body);
-                }
+                var message = "An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId;
+                Respond(context, message, HttpStatusCode.InternalServerError);
             }
             else if (result.Response != null)
             {
-                using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result.Response))))
-                {
-                    context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = (int) HttpStatusCode.OK;
-                    context.Response.ContentLength = inner.ToArray().Count();
-                    inner.CopyTo(context.Response.Body);
-                }
+                Respond(context, result.Response, HttpStatusCode.OK);
             }
             else
             {
-                context.Response.StatusCode = (int) HttpStatusCode.NoContent;
+                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+            }
+        }
+
+        private static void Respond(HttpContext context, object content, HttpStatusCode statusCode)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content, settings))))
+            {
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)statusCode;
+                context.Response.ContentLength = inner.ToArray().Length;
+                inner.CopyTo(context.Response.Body);
             }
         }
     }
