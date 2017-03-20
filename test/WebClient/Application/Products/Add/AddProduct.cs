@@ -48,7 +48,7 @@ namespace WebClient.Application.Products.Add
 
             await this.Domain.Add(target);
 
-            var stock = await this.Send("asdf", new StockProductCommand(command.Count));
+            var stock = await this.Send(new StockProductCommand(command.Count));
             if (!stock.IsSuccessful)
             {
                 await this.Domain.Remove(target);
@@ -72,7 +72,7 @@ namespace WebClient.Application.Products.Add
 
             await this.Domain.Add(target);
 
-            var stock = await this.Send("sadfas", new StockProductCommand(command.Count));
+            var stock = await this.Send(new StockProductCommand(command.Count));
             if (!stock.IsSuccessful)
             {
                 await this.Domain.Remove(target);
