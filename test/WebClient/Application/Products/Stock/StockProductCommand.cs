@@ -2,7 +2,7 @@
 
 namespace WebClient.Application.Products.Stock
 {
-    public class StockProductCommand : Command
+    public class StockProductCommand
     {
         public int ItemCount { get; }
 

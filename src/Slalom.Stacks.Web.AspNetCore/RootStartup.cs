@@ -35,25 +35,7 @@ namespace Slalom.Stacks.Web.AspNetCore
         {
             return "asdfa";
         }
-    }
-
-    [EndPoint("_systems/api")]
-    public class GetApi : ServiceEndPoint
-    {
-        private readonly ServiceRegistry _registry;
-        private readonly IHttpContextAccessor _context;
-
-        public GetApi(ServiceRegistry registry, IHttpContextAccessor context)
-        {
-            _registry = registry;
-            _context = context;
-        }
-
-        public override void Execute()
-        {
-            this.Respond(_registry.CreatePublicRegistry(_context.HttpContext.Request.Scheme + "://" + _context.HttpContext.Request.Host));
-        }
-    }
+    }   
 
     internal class RootStartup
     {

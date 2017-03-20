@@ -34,15 +34,15 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             registry.GetOrRegister(typeof(ValidationError));
 
             var pathItems = new Dictionary<string, PathItem>();
-            foreach (var service in _services.CreatePublicRegistry(host).Hosts.SelectMany(e => e.Services))
+            foreach (var service in _services.Hosts.SelectMany(e => e.Services))
             {
-                foreach (var endPoint in service.EndPoints.Where(e => e.Path.StartsWith(documentName, StringComparison.OrdinalIgnoreCase)))
+                foreach (var endPoint in service.EndPoints.Where(e => e.Path != null && e.Path.StartsWith(documentName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!endPoint.Public)
                     {
                         continue;
                     }
-                    var type = Type.GetType(endPoint.RequestType);
+                    var type = endPoint.RequestType;
                     var schema = registry.GetOrRegister(type);
 
                     //schema.Example = new SwaggerCommand { Name = "sdaf" };
@@ -54,7 +54,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     var responses = new Dictionary<string, Response>();
                     if (endPoint.ResponseType != null)
                     {
-                        var responseType = Type.GetType(endPoint.ResponseType);
+                        var responseType = endPoint.ResponseType;
                         var responseSchema = registry.GetOrRegister(responseType);
                         responses.Add("200", new Response
                         {
@@ -108,7 +108,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     var operation = new Operation
                     {
                         Tags = new[] { paths.Take(Math.Max(1, paths.Count() - 1)).Last().ToTitleCase() },
-                        OperationId = endPoint.RequestType.Split(',')[0].Split('.').Last().Replace("Command", "").ToDelimited("-"),
+                        OperationId = endPoint.RequestType.Name.Split(',')[0].Split('.').Last().Replace("Command", "").ToDelimited("-"),
                         Consumes = new[] { "application/json" },
                         Produces = new[] { "application/json" },
                         Parameters = parameters,
