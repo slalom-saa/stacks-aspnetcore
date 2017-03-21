@@ -16,11 +16,11 @@ namespace ConsoleClient
     }
 
     [EndPoint("api/hello")]
-    public class HelloWorld : EndPoint<HelloWorldRequest, string>
+    public class HelloWorld : EndPoint<HelloWorldRequest>
     {
-        public override string Receive(HelloWorldRequest instance)
+        public override void Receive(HelloWorldRequest instance)
         {
-            return "Hello " + instance.Name + "!";
+            //return "Hello " + instance.Name;
         }
     }
 
