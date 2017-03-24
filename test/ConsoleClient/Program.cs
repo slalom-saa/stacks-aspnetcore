@@ -1,6 +1,5 @@
 ﻿using Slalom.Stacks;
-using Slalom.Stacks.Services;
-using Slalom.Stacks.Services.Registry;
+using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Web.AspNetCore;
 
 namespace ConsoleClient
