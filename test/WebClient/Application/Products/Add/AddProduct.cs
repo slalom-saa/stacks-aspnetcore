@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Messaging.Exceptions;
 using Slalom.Stacks.Messaging.Validation;
-using Slalom.Stacks.Services;
-using Slalom.Stacks.Services.Registry;
 using Slalom.Stacks.Validation;
 using WebClient.Application.Products.Stock;
 using WebClient.Domain.Products;

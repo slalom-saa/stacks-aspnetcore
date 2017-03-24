@@ -18,10 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Slalom.Stacks.Messaging;
-using Slalom.Stacks.Messaging.Events;
+using Slalom.Stacks.Messaging.Registry;
 using Slalom.Stacks.Reflection;
-using Slalom.Stacks.Services;
-using Slalom.Stacks.Services.Registry;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

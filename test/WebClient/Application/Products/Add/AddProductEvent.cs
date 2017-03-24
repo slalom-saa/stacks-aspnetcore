@@ -1,4 +1,4 @@
-﻿using Slalom.Stacks.Messaging.Events;
+﻿using Slalom.Stacks.Messaging;
 
 namespace WebClient.Application.Products.Add
 {

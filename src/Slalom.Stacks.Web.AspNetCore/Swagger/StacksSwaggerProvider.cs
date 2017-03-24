@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.XPath;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.Messaging;
-using Slalom.Stacks.Services.Registry;
+using Slalom.Stacks.Messaging.Registry;
 using Slalom.Stacks.Text;
 using Slalom.Stacks.Validation;
 using Swashbuckle.AspNetCore.Swagger;
@@ -27,7 +25,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
 
         public SwaggerDocument GetSwagger(string documentName, string host = null, string basePath = null, string[] schemes = null)
         {
-            var registry = new SchemaRegistry(new Newtonsoft.Json.JsonSerializerSettings
+            var registry = new SchemaRegistry(new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
@@ -121,7 +119,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                         Post = operation
                     };
 
-                    var path = "/" + String.Join("/", endPoint.Path.Split('/').Skip(1));
+                    var path = "/" + string.Join("/", endPoint.Path.Split('/').Skip(1));
 
                     if (!pathItems.ContainsKey(path))
                     {
@@ -129,7 +127,6 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     }
                 }
             }
-
 
             var swaggerDoc = new SwaggerDocument
             {

@@ -1,5 +1,4 @@
-﻿using Slalom.Stacks.Services;
-using Slalom.Stacks.Services.Registry;
+﻿using Slalom.Stacks.Messaging;
 
 namespace WebClient.Application.Products.Stock
 {
