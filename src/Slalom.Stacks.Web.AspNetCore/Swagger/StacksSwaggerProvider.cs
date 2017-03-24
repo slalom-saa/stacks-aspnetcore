@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -50,7 +51,14 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
 
                     var paths = endPoint.Path.Split('/');
                     var responses = new Dictionary<string, Response>();
-                    if (endPoint.ResponseType != null)
+                    if (endPoint.ResponseType == null)
+                    {
+                        responses.Add("204", new Response
+                        {
+                            Description = "No content is returned from the endpoint.  A 204 status code is returned when execution completed successfully."
+                        });
+                    }
+                    else
                     {
                         var responseType = endPoint.ResponseType;
                         var responseSchema = registry.GetOrRegister(responseType);
@@ -59,49 +67,48 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                             Description = responseType.GetComments()?.Summary,
                             Schema = responseSchema
                         });
-
-                        var builder = new StringBuilder();
-                        foreach (var property in endPoint.RequestProperties.Where(e => e.Validation != null))
+                    }
+                    var builder = new StringBuilder();
+                    foreach (var property in endPoint.RequestProperties.Where(e => e.Validation != null))
+                    {
+                        builder.AppendLine(property.Validation + "    ");
+                    }
+                    if (builder.Length > 0)
+                    {
+                        responses.Add("400", new Response
                         {
-                            builder.AppendLine(property.Validation + "    ");
-                        }
-                        if (builder.Length > 0)
+                            Schema = registry.GetOrRegister(typeof(ValidationError)),
+                            //Examples = new List<ValidationError> { new ValidationError("adsf") },
+                            Description = builder.ToString()
+                        });
+                    }
+                    builder.Clear();
+                    foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Business))
+                    {
+                        builder.AppendLine(source.Name.ToTitleCase() + ".    ");
+                    }
+                    if (builder.Length > 0)
+                    {
+                        responses.Add("409", new Response
                         {
-                            responses.Add("400", new Response
-                            {
-                                Schema = registry.GetOrRegister(typeof(ValidationError)),
-                                //Examples = new List<ValidationError> { new ValidationError("adsf") },
-                                Description = builder.ToString()
-                            });
-                        }
-                        builder.Clear();
-                        foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Business))
+                            Schema = registry.GetOrRegister(typeof(ValidationError)),
+                            //Examples = new List<ValidationError> {new ValidationError("adsf")},
+                            Description = builder.ToString()
+                        });
+                    }
+                    builder.Clear();
+                    foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Security))
+                    {
+                        builder.AppendLine(source.Name.ToTitleCase() + ".    ");
+                    }
+                    if (builder.Length > 0)
+                    {
+                        responses.Add("403", new Response
                         {
-                            builder.AppendLine(source.Name.ToTitleCase() + ".    ");
-                        }
-                        if (builder.Length > 0)
-                        {
-                            responses.Add("409", new Response
-                            {
-                                Schema = registry.GetOrRegister(typeof(ValidationError)),
-                                //Examples = new List<ValidationError> {new ValidationError("adsf")},
-                                Description = builder.ToString()
-                            });
-                        }
-                        builder.Clear();
-                        foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Security))
-                        {
-                            builder.AppendLine(source.Name.ToTitleCase() + ".    ");
-                        }
-                        if (builder.Length > 0)
-                        {
-                            responses.Add("403", new Response
-                            {
-                                Schema = registry.GetOrRegister(typeof(ValidationError)),
-                                //Examples = new List<ValidationError> {new ValidationError("adsf")},
-                                Description = builder.ToString()
-                            });
-                        }
+                            Schema = registry.GetOrRegister(typeof(ValidationError)),
+                            //Examples = new List<ValidationError> {new ValidationError("adsf")},
+                            Description = builder.ToString()
+                        });
                     }
                     var operation = new Operation
                     {
