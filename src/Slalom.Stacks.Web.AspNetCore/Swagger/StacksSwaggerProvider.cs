@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.Messaging;
-using Slalom.Stacks.Services.Registry;
+using Slalom.Stacks.Messaging.Registry;
 using Slalom.Stacks.Text;
 using Slalom.Stacks.Validation;
 using Swashbuckle.AspNetCore.Swagger;
