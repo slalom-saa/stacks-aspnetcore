@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Slalom.Stacks.Messaging;
-using Slalom.Stacks.Messaging.Registry;
+using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Text;
 using Slalom.Stacks.Validation;
 using Swashbuckle.AspNetCore.Swagger;
@@ -17,9 +17,9 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
 {
     public class StacksSwaggerProvider : ISwaggerProvider
     {
-        private readonly ServiceRegistry _services;
+        private readonly ServiceInventory _services;
 
-        public StacksSwaggerProvider(ServiceRegistry services, IOptions<MvcJsonOptions> options)
+        public StacksSwaggerProvider(ServiceInventory services, IOptions<MvcJsonOptions> options)
         {
             _services = services;
         }
