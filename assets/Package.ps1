@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Packages the ASP.NET Core Messaging packages.
+    Packages the ASP.NET Core NuGet packages.
 #>
 
 param (
