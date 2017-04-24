@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.Web.AspNetCore
+namespace Slalom.Stacks.AspNetCore
 {
     public class WebRequestContext : Request
     {
