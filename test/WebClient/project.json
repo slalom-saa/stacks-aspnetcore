@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "Slalom.Stacks.Web.AspNetCore": {
+    "Slalom.Stacks.AspNetCore": {
       "target": "project"
     }
   },

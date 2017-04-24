@@ -12,7 +12,7 @@ using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Web.AspNetCore
+namespace Slalom.Stacks.AspNetCore
 {
     /// <summary>
     /// Extension methods for configuration AspNetCore blocks.

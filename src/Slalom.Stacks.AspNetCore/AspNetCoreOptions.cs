@@ -1,4 +1,4 @@
-namespace Slalom.Stacks.Web.AspNetCore
+namespace Slalom.Stacks.AspNetCore
 {
     /// <summary>
     /// Options for AspNetCore blocks.

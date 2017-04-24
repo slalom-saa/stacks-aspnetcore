@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Slalom.Stacks;
-using Slalom.Stacks.Web.AspNetCore;
+using Slalom.Stacks.AspNetCore;
 
 namespace WebClient
 {

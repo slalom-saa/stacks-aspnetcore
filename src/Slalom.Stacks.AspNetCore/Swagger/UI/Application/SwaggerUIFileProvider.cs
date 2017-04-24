@@ -8,9 +8,9 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
     public class SwaggerUIFileProvider : IFileProvider
     {
         private const string StaticFilesNamespace =
-            "Slalom.Stacks.Web.AspNetCore.bower_components.swagger_ui.dist";
+            "Slalom.Stacks.AspNetCore.bower_components.swagger_ui.dist";
         private const string IndexResourceName =
-            "Slalom.Stacks.Web.AspNetCore.Swagger.UI.Template.index.html";
+            "Slalom.Stacks.AspNetCore.Swagger.UI.Template.index.html";
 
         private readonly Assembly _thisAssembly;
         private readonly EmbeddedFileProvider _staticFileProvider;

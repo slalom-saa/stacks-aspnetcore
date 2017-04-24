@@ -23,7 +23,7 @@ using Slalom.Stacks.Services.Messaging;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Slalom.Stacks.Web.AspNetCore
+namespace Slalom.Stacks.AspNetCore
 {
     [Route("some")]
     public class Go
