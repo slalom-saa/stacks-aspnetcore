@@ -23,7 +23,9 @@ namespace Slalom.Stacks.AspNetCore.OData
         [EnableQuery]
         public IQueryable<T> Get()
         {
-            return new List<Product> { new Product { Name = "First" }, new Product { Name = "Second" } }.OfType<T>().AsQueryable();
+            var command = RootStartup.Stack.Send(this.Request.RequestUri.PathAndQuery.Split('?')[0].Trim('/')).Result;
+
+            return command.Response as IQueryable<T>;
         }
     }
 }

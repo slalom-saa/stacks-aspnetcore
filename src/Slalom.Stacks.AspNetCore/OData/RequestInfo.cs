@@ -11,14 +11,13 @@ namespace Slalom.Stacks.AspNetCore.OData
 {
     public class RequestInfo
     {
-        public RequestInfo(string dataSourceName)
+        public RequestInfo()
         {
             this.Message = string.Empty;
             this.StatusCode = System.Net.HttpStatusCode.NotFound;
             this.Result = true;
-            this.DataSourceName = dataSourceName;
         }
-        public string DataSourceName { get; internal set; }
+
         /// <summary>
         /// Get,Create,Update,Replace,Delete,Replace,InvokeFunction
         /// </summary>

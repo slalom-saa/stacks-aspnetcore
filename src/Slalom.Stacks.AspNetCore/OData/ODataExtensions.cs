@@ -10,6 +10,7 @@ using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.OData.Edm;
+using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.AspNetCore.OData
 {
@@ -23,25 +24,7 @@ namespace Slalom.Stacks.AspNetCore.OData
         {
             IList<IODataRoutingConvention> routingConventions = ODataRoutingConventions.CreateDefault();
             routingConventions.Insert(0, new DynamicODataRoutingConvention());
-            return MapDynamicODataServiceRoute(
-                routes,
-                routeName,
-                routePrefix,
-                GetModelFuncFromRequest(),
-                new DefaultODataPathHandler(),
-                routingConventions,
-                batchHandler: new DynamicODataBatchHandler(httpServer));
-        }
 
-        private static ODataRoute MapDynamicODataServiceRoute(
-            HttpRouteCollection routes,
-            string routeName,
-            string routePrefix,
-            Func<HttpRequestMessage, IEdmModel> modelProvider,
-            IODataPathHandler pathHandler,
-            IEnumerable<IODataRoutingConvention> routingConventions,
-            ODataBatchHandler batchHandler)
-        {
             if (!string.IsNullOrEmpty(routePrefix))
             {
                 int prefixLastIndex = routePrefix.Length - 1;
@@ -50,27 +33,13 @@ namespace Slalom.Stacks.AspNetCore.OData
                     routePrefix = routePrefix.Substring(0, routePrefix.Length - 1);
                 }
             }
-            if (batchHandler != null)
-            {
-                batchHandler.ODataRouteName = routeName;
-                string batchTemplate = string.IsNullOrEmpty(routePrefix)
-                    ? ODataRouteConstants.Batch
-                    : routePrefix + '/' + ODataRouteConstants.Batch;
-                routes.MapHttpBatchRoute(routeName + "Batch", batchTemplate, batchHandler);
-            }
             DynamicODataPathRouteConstraint routeConstraint = new DynamicODataPathRouteConstraint(
-                pathHandler,
-                modelProvider,
+                new DefaultODataPathHandler(),
+                GetModelFuncFromRequest(),
                 routeName,
                 routingConventions);
             DynamicODataRoute odataRoute = new DynamicODataRoute(routePrefix, routeConstraint);
             routes.Add(routeName, odataRoute);
-
-
-            //routes.Add("sdf", new ODataRoute("adf", new AllConstraint(pathHandler,
-            //    modelProvider,
-            //    routeName,
-            //    routingConventions)));
 
             return odataRoute;
         }
@@ -86,14 +55,22 @@ namespace Slalom.Stacks.AspNetCore.OData
             return request =>
             {
                 string odataPath = request.Properties[Constants.CustomODataPath] as string ?? string.Empty;
+
+
+                var service = RootStartup.Stack.GetServices().Find(odataPath);
+
                 string[] segments = odataPath.Split('/');
                 string dataSource = segments[0];
                 request.Properties[Constants.ODataDataSource] = dataSource;
 
                 ODataModelBuilder odataMetadataBuilder = new ODataConventionModelBuilder();
-                odataMetadataBuilder.Namespace = odataMetadataBuilder.ContainerName = "WebApplication1";
+                odataMetadataBuilder.Namespace = odataMetadataBuilder.ContainerName = "Stacks";
 
-                var products = odataMetadataBuilder.EntitySet<Product>("Products");
+                var entityType = service.ResponseType.GetGenericArguments()[0];
+
+                request.Properties[Constants.QueryType] = entityType;
+
+                typeof(ODataModelBuilder).GetMethod("EntitySet").MakeGenericMethod(entityType).Invoke(odataMetadataBuilder, new object[] { entityType.Name });
 
                 IEdmModel model = odataMetadataBuilder.GetEdmModel();
                 request.Properties[Constants.CustomODataPath] = string.Join("/", segments, 1, segments.Length - 1);

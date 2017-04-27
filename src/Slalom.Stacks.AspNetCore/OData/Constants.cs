@@ -11,5 +11,7 @@ namespace Slalom.Stacks.AspNetCore.OData
 
         public const string ODataDataSource = "ODataDataSource";
 
+        public const string QueryType = "StacksQueryType";
+
     }
 }

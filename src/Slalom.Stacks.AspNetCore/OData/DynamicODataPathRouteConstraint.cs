@@ -12,6 +12,7 @@ using System.Web.OData.Routing.Conventions;
 using Microsoft.OData.Core;
 using Microsoft.OData.Edm;
 using Microsoft.OData.Edm.Library;
+using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.AspNetCore.OData
 {
@@ -60,6 +61,12 @@ namespace Slalom.Stacks.AspNetCore.OData
                 return false;
             }
 
+            var service = RootStartup.Stack.GetServices().Find(request.RequestUri.PathAndQuery.Split('?')[0].Trim('/'));
+            if (service == null || !service.ResponseType.IsGenericType || service.ResponseType.GetGenericTypeDefinition() != typeof(IQueryable<>))
+            {
+                return false;
+            }
+
             string oDataPathString = oDataPathValue as string;
 
             ODataPath path;
@@ -67,6 +74,7 @@ namespace Slalom.Stacks.AspNetCore.OData
             try
             {
                 request.Properties[Constants.CustomODataPath] = oDataPathString;
+               
 
                 model = EdmModelProvider(request);
                 oDataPathString = (string)request.Properties[Constants.CustomODataPath];
@@ -90,7 +98,7 @@ namespace Slalom.Stacks.AspNetCore.OData
                     serviceRoot = serviceRoot.Substring(0, serviceRoot.Length - 3);
                 }
 
-                path = PathHandler.Parse(model, serviceRoot, oDataPathAndQuery);
+                path = PathHandler.Parse(model, serviceRoot, ((Type)request.Properties[Constants.QueryType]).Name + "?" + request.RequestUri.Query);
             }
             catch (ODataException)
             {

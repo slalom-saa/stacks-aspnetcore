@@ -93,7 +93,7 @@ namespace Slalom.Stacks.AspNetCore
                 var server = new HttpServer(configuration);
                 configuration.Routes.MapDynamicODataServiceRoute(
                     "odata",
-                    "odata",
+                    "",
                     server);
                 configuration.AddODataQueryFilter();
                // var y = configuration.Services.GetService(typeof(IHttpControllerSelector));
@@ -109,23 +109,7 @@ namespace Slalom.Stacks.AspNetCore
     public class C : DefaultHttpControllerSelector
     {
         private readonly HttpConfiguration _configuration;
-        //private readonly HttpConfiguration _configuration;
-
-       
-        //public HttpControllerDescriptor SelectController(HttpRequestMessage request)
-        //{
-        //    return new HttpControllerDescriptor
-        //    {
-        //        Configuration = _configuration,
-        //        ControllerName = "DynamicOData",
-        //        ControllerType = typeof(DynamicODataController)
-        //    };
-        //}
-
-        //public IDictionary<string, HttpControllerDescriptor> GetControllerMapping()
-        //{
-        //    throw new NotImplementedException();
-        //}
+      
         public C(HttpConfiguration configuration) : base(configuration)
         {
             _configuration = configuration;
@@ -135,7 +119,9 @@ namespace Slalom.Stacks.AspNetCore
         {
             var expected =  base.SelectController(request);
 
-            expected.ControllerType = typeof(DynamicODataController<Product>);
+            var service = RootStartup.Stack.GetServices().Find(request.RequestUri.PathAndQuery.Split('?')[0].Trim('/'));
+            var entityType = service.ResponseType.GetGenericArguments()[0];
+            expected.ControllerType = typeof(DynamicODataController<>).MakeGenericType(entityType);
 
             return expected;
         }

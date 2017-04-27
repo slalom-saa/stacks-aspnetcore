@@ -22,9 +22,7 @@ namespace Slalom.Stacks.AspNetCore.OData
             _canGenerateDirectLink = routePrefix != null && RoutePrefix.IndexOf('{') == -1;
         }
 
-        public override IHttpVirtualPathData GetVirtualPath(
-            HttpRequestMessage request,
-            IDictionary<string, object> values)
+        public override IHttpVirtualPathData GetVirtualPath(HttpRequestMessage request, IDictionary<string, object> values)
         {
             if (values == null || !values.Keys.Contains(HttpRoute.HttpRouteKey, StringComparer.OrdinalIgnoreCase))
             {
