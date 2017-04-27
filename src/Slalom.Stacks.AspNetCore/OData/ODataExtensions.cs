@@ -8,6 +8,7 @@ using System.Web.OData.Batch;
 using System.Web.OData.Builder;
 using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.OData.Edm;
 
 namespace Slalom.Stacks.AspNetCore.OData
@@ -64,6 +65,12 @@ namespace Slalom.Stacks.AspNetCore.OData
                 routingConventions);
             DynamicODataRoute odataRoute = new DynamicODataRoute(routePrefix, routeConstraint);
             routes.Add(routeName, odataRoute);
+
+
+            //routes.Add("sdf", new ODataRoute("adf", new AllConstraint(pathHandler,
+            //    modelProvider,
+            //    routeName,
+            //    routingConventions)));
 
             return odataRoute;
         }

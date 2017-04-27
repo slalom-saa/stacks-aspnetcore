@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Controllers;
+using System.Web.Http.Dispatcher;
 using System.Web.OData.Extensions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -86,16 +89,55 @@ namespace Slalom.Stacks.AspNetCore
             app.UseOwinApp(owinApp =>
             {
                 HttpConfiguration configuration = new HttpConfiguration();
+                
                 var server = new HttpServer(configuration);
                 configuration.Routes.MapDynamicODataServiceRoute(
                     "odata",
                     "odata",
                     server);
                 configuration.AddODataQueryFilter();
+               // var y = configuration.Services.GetService(typeof(IHttpControllerSelector));
+                configuration.Services.Replace(typeof(IHttpControllerSelector), new C(configuration));
                 owinApp.UseWebApi(configuration);
+
             });
 
             app.UseStacks(Stack);
+        }
+    }
+
+    public class C : DefaultHttpControllerSelector
+    {
+        private readonly HttpConfiguration _configuration;
+        //private readonly HttpConfiguration _configuration;
+
+       
+        //public HttpControllerDescriptor SelectController(HttpRequestMessage request)
+        //{
+        //    return new HttpControllerDescriptor
+        //    {
+        //        Configuration = _configuration,
+        //        ControllerName = "DynamicOData",
+        //        ControllerType = typeof(DynamicODataController)
+        //    };
+        //}
+
+        //public IDictionary<string, HttpControllerDescriptor> GetControllerMapping()
+        //{
+        //    throw new NotImplementedException();
+        //}
+        public C(HttpConfiguration configuration) : base(configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public override HttpControllerDescriptor SelectController(HttpRequestMessage request)
+        {
+            var expected =  base.SelectController(request);
+
+            expected.ControllerType = typeof(DynamicODataController<Product>);
+
+            return expected;
         }
     }
 }

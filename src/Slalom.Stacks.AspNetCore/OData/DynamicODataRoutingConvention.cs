@@ -23,6 +23,8 @@ namespace Slalom.Stacks.AspNetCore.OData
             return null;
         }
 
+
+
         public string SelectController(ODataPath odataPath, System.Net.Http.HttpRequestMessage request)
         {
             var seg = odataPath.Segments.FirstOrDefault();
