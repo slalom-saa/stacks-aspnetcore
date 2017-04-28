@@ -5,18 +5,22 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Dispatcher;
+using System.Web.OData.Extensions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Owin;
+using Slalom.Stacks.AspNetCore.OData;
 using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
@@ -25,21 +29,22 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
-    [Route("some")]
-    public class Go
-    {
-        [HttpGet]
-        public string Get()
-        {
-            return "asdfa";
-        }
-    }   
-
     internal class RootStartup
     {
         public IConfigurationRoot Configuration { get; private set; }
 
         public static Stack Stack { get; set; }
+
+        public RootStartup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            this.Configuration = builder.Build();
+        }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -58,7 +63,6 @@ namespace Slalom.Stacks.AspNetCore
                 builder.RegisterType<WebRequestContext>().As<IRequestContext>();
                 builder.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
                 builder.Populate(services);
-
             });
 
             return new AutofacServiceProvider(Stack.Container);
@@ -79,6 +83,22 @@ namespace Slalom.Stacks.AspNetCore
 
                     c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
                 }
+            });
+
+            app.UseOwinApp(owinApp =>
+            {
+                HttpConfiguration configuration = new HttpConfiguration();
+                
+                var server = new HttpServer(configuration);
+                configuration.Routes.MapDynamicODataServiceRoute(
+                    "odata",
+                    "",
+                    server);
+                configuration.AddODataQueryFilter();
+               // var y = configuration.Services.GetService(typeof(IHttpControllerSelector));
+                configuration.Services.Replace(typeof(IHttpControllerSelector), new ODataControllerSelector(configuration));
+                owinApp.UseWebApi(configuration);
+
             });
 
             app.UseStacks(Stack);

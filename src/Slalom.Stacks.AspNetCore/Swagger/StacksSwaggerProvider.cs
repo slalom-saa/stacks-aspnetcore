@@ -73,6 +73,10 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     {
                         builder.AppendLine(property.Validation + "    ");
                     }
+                    foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Input))
+                    {
+                        builder.AppendLine(source.Name.ToTitleCase() + ".    ");
+                    }
                     if (builder.Length > 0)
                     {
                         responses.Add("400", new Response
