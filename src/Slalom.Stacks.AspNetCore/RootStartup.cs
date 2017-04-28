@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.OData.Extensions;
 using Autofac;
@@ -31,21 +29,22 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
-    [Microsoft.AspNetCore.Mvc.Route("some")]
-    public class Go
-    {
-        [Microsoft.AspNetCore.Mvc.HttpGet]
-        public string Get()
-        {
-            return "asdfa";
-        }
-    }
-
     internal class RootStartup
     {
         public IConfigurationRoot Configuration { get; private set; }
 
         public static Stack Stack { get; set; }
+
+        public RootStartup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            this.Configuration = builder.Build();
+        }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -97,33 +96,12 @@ namespace Slalom.Stacks.AspNetCore
                     server);
                 configuration.AddODataQueryFilter();
                // var y = configuration.Services.GetService(typeof(IHttpControllerSelector));
-                configuration.Services.Replace(typeof(IHttpControllerSelector), new C(configuration));
+                configuration.Services.Replace(typeof(IHttpControllerSelector), new ODataControllerSelector(configuration));
                 owinApp.UseWebApi(configuration);
 
             });
 
             app.UseStacks(Stack);
-        }
-    }
-
-    public class C : DefaultHttpControllerSelector
-    {
-        private readonly HttpConfiguration _configuration;
-      
-        public C(HttpConfiguration configuration) : base(configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public override HttpControllerDescriptor SelectController(HttpRequestMessage request)
-        {
-            var expected =  base.SelectController(request);
-
-            var service = RootStartup.Stack.GetServices().Find(request.RequestUri.PathAndQuery.Split('?')[0].Trim('/'));
-            var entityType = service.ResponseType.GetGenericArguments()[0];
-            expected.ControllerType = typeof(DynamicODataController<>).MakeGenericType(entityType);
-
-            return expected;
         }
     }
 }
