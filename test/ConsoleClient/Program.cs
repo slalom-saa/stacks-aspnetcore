@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Slalom.Stacks;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Domain;
 using Slalom.Stacks.Search;
+using Slalom.Stacks.Services.Messaging;
 
 namespace ConsoleClient
 {
@@ -66,6 +68,19 @@ namespace ConsoleClient
         public override void Receive(HelloWorldRequest instance)
         {
             //return "Hello " + instance.Name;
+        }
+    }
+
+    public class GetDocumentRequest
+    {
+    }
+
+    [EndPoint("document/get")]
+    public class GetDocument : EndPoint<GetDocumentRequest, Document>
+    {
+        public override Document Receive(GetDocumentRequest instance)
+        {
+            return new Document("name.txt", Encoding.UTF8.GetBytes("content"));
         }
     }
 

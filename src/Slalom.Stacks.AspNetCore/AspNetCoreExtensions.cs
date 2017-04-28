@@ -102,11 +102,29 @@ namespace Slalom.Stacks.AspNetCore
             }
             else if (result.Response != null)
             {
-                Respond(context, result.Response, HttpStatusCode.OK);
+                if (result.Response is Document)
+                {
+                    Respond(context, (Document)result.Response, HttpStatusCode.OK);
+                }
+                else
+                {
+                    Respond(context, result.Response, HttpStatusCode.OK);
+                }
             }
             else
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+            }
+        }
+
+        private static void Respond(HttpContext context, Document content, HttpStatusCode statusCode)
+        {
+            using (var stream = new MemoryStream(content.Content))
+            {
+                context.Response.ContentType = MimeTypes.GetMimeType(Path.GetExtension(content.Name));
+                context.Response.StatusCode = (int)statusCode;
+                context.Response.ContentLength = content.Content.Length;
+                stream.CopyTo(context.Response.Body);
             }
         }
 
