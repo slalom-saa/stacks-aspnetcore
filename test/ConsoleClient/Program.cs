@@ -7,6 +7,7 @@ using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Domain;
 using Slalom.Stacks.Search;
 using Slalom.Stacks.Services.Messaging;
+using Slalom.Stacks.Validation;
 
 namespace ConsoleClient
 {
@@ -59,6 +60,7 @@ namespace ConsoleClient
             this.Name = name;
         }
 
+        [NotNull("h")]
         public string Name { get; }
     }
 

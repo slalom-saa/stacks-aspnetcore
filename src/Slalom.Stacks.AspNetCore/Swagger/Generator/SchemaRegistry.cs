@@ -5,6 +5,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Converters;
+using Slalom.Stacks.Validation;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Swashbuckle.AspNetCore.SwaggerGen
@@ -186,16 +187,16 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
         private Schema CreateObjectSchema(JsonObjectContract jsonContract, Queue<Type> referencedTypes)
         {
             var properties = jsonContract.Properties
-                .Where(p => !p.Ignored)
-                .Where(p => !(_settings.IgnoreObsoleteProperties && p.IsObsolete()))
-                .ToDictionary(
-                    prop => prop.PropertyName,
-                    prop => CreateSchema(prop.PropertyType, referencedTypes).AssignValidationProperties(prop)
-                );
+                                         .Where(p => !p.Ignored)
+                                         .Where(p => !(_settings.IgnoreObsoleteProperties && p.IsObsolete()))
+                                         .ToDictionary(
+                                             prop => prop.PropertyName,
+                                             prop => CreateSchema(prop.PropertyType, referencedTypes).AssignValidationProperties(prop)
+                                         );
 
             var required = jsonContract.Properties.Where(prop => prop.IsRequired())
-                .Select(propInfo => propInfo.PropertyName)
-                .ToList();
+                                       .Select(propInfo => propInfo.PropertyName)
+                                       .ToList();
 
             var schema = new Schema
             {
