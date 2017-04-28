@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.Reflection;
 
 namespace Swashbuckle.AspNetCore.SwaggerGen
 {
@@ -13,6 +14,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
         {
             return jsonProperty.Required == Newtonsoft.Json.Required.AllowNull
                 || jsonProperty.Required == Newtonsoft.Json.Required.Always
+                || jsonProperty.PropertyInfo().GetCustomAttributes<Slalom.Stacks.Validation.ValidationAttribute>(true).Any()
                 || jsonProperty.HasAttribute<RequiredAttribute>();
         }
 
