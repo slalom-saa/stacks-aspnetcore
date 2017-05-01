@@ -62,7 +62,7 @@ namespace Slalom.Stacks.AspNetCore.OData
             }
 
             var service = RootStartup.Stack.GetServices().Find(request.RequestUri.PathAndQuery.Split('?')[0].Trim('/'));
-            if (service == null || !service.ResponseType.IsGenericType || service.ResponseType.GetGenericTypeDefinition() != typeof(IQueryable<>))
+            if (service == null || service.ResponseType == null || !service.ResponseType.IsGenericType || service.ResponseType.GetGenericTypeDefinition() != typeof(IQueryable<>))
             {
                 return false;
             }
