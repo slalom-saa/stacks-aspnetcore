@@ -36,24 +36,27 @@ namespace Slalom.Stacks.AspNetCore
         {
             app.UseMvc();
 
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
+            var services = Stack.GetServices();
+            if (services.EndPoints.Any(e=>e.Public && !String.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
             {
-                var services = Stack.GetServices()
-                    .Hosts.SelectMany(e => e.Services)
-                    .Where(e => e.EndPoints.Any(x => x.Public))
-                    .SelectMany(e => e.EndPoints)
-                    .Select(e => e.Path)
-                    .Select(e => e?.Split('/').FirstOrDefault())
-                    .Distinct()
-                    .Where(e => e != null && !e.StartsWith("_"))
-                    .OrderBy(e => e);
-                foreach (var service in services)
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
-                }
-            });
+                    var current = services
+                                       .Hosts.SelectMany(e => e.Services)
+                                       .Where(e => e.EndPoints.Any(x => x.Public))
+                                       .SelectMany(e => e.EndPoints)
+                                       .Select(e => e.Path)
+                                       .Select(e => e?.Split('/').FirstOrDefault())
+                                       .Distinct()
+                                       .Where(e => e != null && !e.StartsWith("_"))
+                                       .OrderBy(e => e);
+                    foreach (var service in current)
+                    {
+                        c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
+                    }
+                });
+            }
 
             app.UseStacks(Stack);
         }

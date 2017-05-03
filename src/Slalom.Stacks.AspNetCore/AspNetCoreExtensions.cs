@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,6 +40,33 @@ namespace Slalom.Stacks.AspNetCore
             if (options.Urls?.Any() ?? false)
             {
                 builder.UseUrls(options.Urls);
+            }
+
+            if (options.SubscriptionUrls?.Any() ?? false)
+            {
+                string[] urls = null;
+                if (options.Urls?.Any() ?? false)
+                {
+                    urls = options.Urls;
+                }
+                else
+                {
+                    urls = new[] { "http://localhost:5000" };
+                }
+                using (var client = new HttpClient())
+                {
+                    foreach (var url in options.SubscriptionUrls)
+                    {
+                        foreach (var inner in urls)
+                        {
+                            var content = new StringContent(JsonConvert.SerializeObject(new
+                            {
+                                path = inner
+                            }), Encoding.UTF8, "application/json");
+                            client.PostAsync(url + "/_system/events/subscribe", content).Wait();
+                        }
+                    }
+                }
             }
 
             builder.Build().Run();
