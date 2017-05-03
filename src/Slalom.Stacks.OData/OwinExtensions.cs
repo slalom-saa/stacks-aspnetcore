@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.OData.Routing;
-using System.Web.OData.Routing.Conventions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Owin.Builder;
 using Microsoft.Owin.BuilderProperties;
 using Owin;
-using Slalom.Stacks.AspNetCore.OData;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.OData
 {
     public static class OwinExtensions
     {

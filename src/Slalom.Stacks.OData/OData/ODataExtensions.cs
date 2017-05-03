@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.OData.Batch;
 using System.Web.OData.Builder;
 using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.OData.Edm;
 using Slalom.Stacks.Services;
 
-namespace Slalom.Stacks.AspNetCore.OData
+namespace Slalom.Stacks.OData.OData
 {
     public static class ODataExtensions
     {

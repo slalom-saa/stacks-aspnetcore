@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.OData
 {
     public static class MimeTypes
     {
-        private static IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        private static IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
 
             #region Big freaking list of mime types
             // combination of values from Windows 7 Registry and 

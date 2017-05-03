@@ -2,10 +2,9 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
-using Slalom.Stacks.AspNetCore.OData;
 using Slalom.Stacks.Services;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.OData.OData
 {
     public class ODataControllerSelector : DefaultHttpControllerSelector
     {

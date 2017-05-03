@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using System.Web.OData.Extensions;
@@ -14,7 +13,7 @@ using Microsoft.OData.Edm;
 using Microsoft.OData.Edm.Library;
 using Slalom.Stacks.Services;
 
-namespace Slalom.Stacks.AspNetCore.OData
+namespace Slalom.Stacks.OData.OData
 {
     public class DynamicODataPathRouteConstraint : ODataPathRouteConstraint
     {
@@ -30,7 +29,7 @@ namespace Slalom.Stacks.AspNetCore.OData
             IEnumerable<IODataRoutingConvention> routingConventions)
             : base(pathHandler, new EdmModel(), routeName, routingConventions)
         {
-            EdmModelProvider = modelProvider;
+            this.EdmModelProvider = modelProvider;
         }
 
         public override bool Match(
@@ -76,7 +75,7 @@ namespace Slalom.Stacks.AspNetCore.OData
                 request.Properties[Constants.CustomODataPath] = oDataPathString;
                
 
-                model = EdmModelProvider(request);
+                model = this.EdmModelProvider(request);
                 oDataPathString = (string)request.Properties[Constants.CustomODataPath];
 
                 string requestLeftPart = request.RequestUri.GetLeftPart(UriPartial.Path);
@@ -98,7 +97,7 @@ namespace Slalom.Stacks.AspNetCore.OData
                     serviceRoot = serviceRoot.Substring(0, serviceRoot.Length - 3);
                 }
 
-                path = PathHandler.Parse(model, serviceRoot, ((Type)request.Properties[Constants.QueryType]).Name + "?" + request.RequestUri.Query);
+                path = this.PathHandler.Parse(model, serviceRoot, ((Type)request.Properties[Constants.QueryType]).Name + "?" + request.RequestUri.Query);
             }
             catch (ODataException)
             {
@@ -112,17 +111,17 @@ namespace Slalom.Stacks.AspNetCore.OData
 
             HttpRequestMessageProperties odataProperties = request.ODataProperties();
             odataProperties.Model = model;
-            odataProperties.PathHandler = PathHandler;
+            odataProperties.PathHandler = this.PathHandler;
             odataProperties.Path = path;
-            odataProperties.RouteName = RouteName;
-            odataProperties.RoutingConventions = RoutingConventions;
+            odataProperties.RouteName = this.RouteName;
+            odataProperties.RoutingConventions = this.RoutingConventions;
 
             if (values.ContainsKey(ODataRouteConstants.Controller))
             {
                 return true;
             }
 
-            string controllerName = SelectControllerName(path, request);
+            string controllerName = this.SelectControllerName(path, request);
             if (controllerName != null)
             {
                 values[ODataRouteConstants.Controller] = controllerName;
