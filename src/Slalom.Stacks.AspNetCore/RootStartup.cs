@@ -1,13 +1,17 @@
 using System;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,10 +23,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Slalom.Stacks.AspNetCore
 {
 
-    [Route("go"), Authorize]
+    [Route("go")]
     public class Go : Controller
     {
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         public string Do()
         {
             return "Asdf";
@@ -49,21 +53,45 @@ namespace Slalom.Stacks.AspNetCore
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseMvc();
 
-            app.UseCors(b =>
-            {
-                b.AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationScheme = "ApplicationCookie",
-                AutomaticAuthenticate = true
+                AutomaticAuthenticate = true,
+                Events = new CookieAuthenticationEvents
+                {
+                    OnSigningIn = a =>
+                    {
+                        Console.WriteLine("OnSigningIn");
+                        return Task.FromResult(0);
+                    },
+                    OnValidatePrincipal = a =>
+                    {
+                        Console.WriteLine("OnValidatePrincipal");
+                        return Task.FromResult(0);
+                    },
+                    OnRedirectToLogin = a =>
+                    {
+                        Console.WriteLine("OnRedirectToLogin");
+                        a.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        return Task.FromResult(0);
+                    }
+                }
             });
+
+            app.UseMvc();
+
+
+
+
+            //app.UseCors(b =>
+            //{
+            //    b.AllowAnyOrigin()
+            //        .AllowAnyHeader()
+            //        .AllowAnyMethod()
+            //        .AllowCredentials();
+            //});
 
             var services = Stack.GetServices();
             if (services.EndPoints.Any(e => e.Public && !String.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
@@ -96,7 +124,15 @@ namespace Slalom.Stacks.AspNetCore
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddMvc()
+            var defaultPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .AddAuthenticationSchemes("ApplicationCookie")
+                .Build();
+
+            services.AddMvc(setup =>
+                    {
+                        //setup.Filters.Add(new AuthorizeFilter(defaultPolicy));
+                    })
                 .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });
 
             Stack.Use(builder =>

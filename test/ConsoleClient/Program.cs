@@ -43,7 +43,7 @@ namespace ConsoleClient
             {
                 stack.RunWebHost(e =>
                 {
-                    e.WithUrls("http://localhost:8000");
+                    e.WithUrls("http://localhost:5000");
                 });
             }
         }

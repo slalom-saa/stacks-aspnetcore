@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
@@ -20,6 +21,13 @@ namespace Slalom.Stacks.AspNetCore
     /// </summary>
     public static class AspNetCoreExtensions
     {
+        public static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
+        {
+            var path = request.Path.Value.Trim('/');
+            var inventory = stack.GetServices();
+            return inventory.Find(path);
+        }
+
         /// <summary>
         /// Starts and runs an API to access the stack.
         /// </summary>
@@ -72,6 +80,12 @@ namespace Slalom.Stacks.AspNetCore
         {
             app.Use(async (context, next) =>
             {
+                await context.Authentication.ChallengeAsync("ApplicationCookie");
+                if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    return;
+                }
+
                 var path = context.Request.Path.Value.Trim('/');
                 var registry = stack.GetServices();
                 if (registry.Find(path) != null)
