@@ -42,29 +42,17 @@ namespace Slalom.Stacks.AspNetCore
                 builder.UseUrls(options.Urls);
             }
 
-            if (options.SubscriptionUrls?.Any() ?? false)
+            if ((options.SubscriptionUrls?.Any() ?? false) && !String.IsNullOrWhiteSpace(options.Subscriber))
             {
-                string[] urls = null;
-                if (options.Urls?.Any() ?? false)
-                {
-                    urls = options.Urls;
-                }
-                else
-                {
-                    urls = new[] { "http://localhost:5000" };
-                }
                 using (var client = new HttpClient())
                 {
                     foreach (var url in options.SubscriptionUrls)
                     {
-                        foreach (var inner in urls)
+                        var content = new StringContent(JsonConvert.SerializeObject(new
                         {
-                            var content = new StringContent(JsonConvert.SerializeObject(new
-                            {
-                                path = inner
-                            }), Encoding.UTF8, "application/json");
-                            client.PostAsync(url + "/_system/events/subscribe", content).Wait();
-                        }
+                            path = options.Subscriber
+                        }), Encoding.UTF8, "application/json");
+                        client.PostAsync(url + "/_system/events/subscribe", content).Wait();
                     }
                 }
             }

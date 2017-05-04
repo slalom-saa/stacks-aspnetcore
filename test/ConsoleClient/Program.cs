@@ -30,6 +30,8 @@ namespace ConsoleClient
         public override void Receive()
         {
             this.AddRaisedEvent(new ProductAdded(DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
+            this.Respond("asdfasf");    
         }
     }
 
@@ -39,7 +41,10 @@ namespace ConsoleClient
         {
             using (var stack = new Stack())
             {
-                stack.RunWebHost();
+                stack.RunWebHost(e =>
+                {
+                    e.WithUrls("http://localhost:8000");
+                });
             }
         }
     }

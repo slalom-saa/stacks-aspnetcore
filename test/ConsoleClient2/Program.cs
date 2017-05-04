@@ -35,6 +35,7 @@ namespace ConsoleClient2
         {
             using (var stack = new Stack())
             {
+
                 Thread.Sleep(3000);
                 //stack.UseAkka();
 
@@ -43,7 +44,7 @@ namespace ConsoleClient2
                 stack.RunWebHost(e =>
                 {
                     e.WithUrls("http://localhost:5001")
-                     .WithSubscriptions("http://localhost:5000");
+                     .WithSubscriptions("http://localhost:5001", "http://localhost:5000");
                 });
             }
         }

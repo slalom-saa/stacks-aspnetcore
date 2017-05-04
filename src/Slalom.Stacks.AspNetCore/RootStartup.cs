@@ -2,9 +2,12 @@ using System;
 using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,6 +18,18 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
+
+    [Route("go"), Authorize]
+    public class Go : Controller
+    {
+        [HttpGet]
+        public string Do()
+        {
+            return "Asdf";
+        }
+    }
+
+
     internal class RootStartup
     {
         public RootStartup(IHostingEnvironment env)
@@ -36,8 +51,22 @@ namespace Slalom.Stacks.AspNetCore
         {
             app.UseMvc();
 
+            app.UseCors(b =>
+            {
+                b.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                AuthenticationScheme = "ApplicationCookie",
+                AutomaticAuthenticate = true
+            });
+
             var services = Stack.GetServices();
-            if (services.EndPoints.Any(e=>e.Public && !String.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
+            if (services.EndPoints.Any(e => e.Public && !String.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>

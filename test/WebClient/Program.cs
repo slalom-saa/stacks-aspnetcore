@@ -11,12 +11,12 @@ using Slalom.Stacks.Services;
 namespace WebClient
 {
 
-    [EndPoint("test/here")]
+    [EndPoint("test")]
     public class Some : EndPoint
     {
         public override void Receive()
         {
-            base.Receive();
+            base.Respond("123456");
         }
     }
 
