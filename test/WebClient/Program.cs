@@ -4,21 +4,25 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Inventory;
 
 namespace WebClient
 {
 
-    [EndPoint("test")]
+    [EndPoint("test", Secure = true)]
     public class Some : EndPoint
     {
         public override void Receive()
         {
-            base.Respond("123456");
+            this.Respond("Name: " + Request.User.Identity.Name + ":" + Request.User.Identity.IsAuthenticated);
         }
     }
+
+   
 
     public class Program
     {

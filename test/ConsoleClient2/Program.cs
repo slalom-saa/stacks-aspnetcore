@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Text;
 
 namespace ConsoleClient2
@@ -29,6 +30,24 @@ namespace ConsoleClient2
         }
     }
 
+    public class Hopped : Event
+    {
+    }
+
+
+    [EndPoint("hop")]
+    public class Hop : EndPoint
+    {
+        public override void Receive()
+        {
+            Console.WriteLine(Request.User.Identity.Name);
+
+            this.Respond("Hello hopped");
+
+            this.AddRaisedEvent(new Hopped());
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -36,15 +55,15 @@ namespace ConsoleClient2
             using (var stack = new Stack())
             {
 
-                Thread.Sleep(3000);
+                //Thread.Sleep(3000);
                 //stack.UseAkka();
 
                 //stack.Schedule(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), new ConsumeEventFeedRequest("http://localhost:5000"));
 
                 stack.RunWebHost(e =>
                 {
-                    e.WithUrls("http://localhost:5001")
-                     .WithSubscriptions("http://localhost:5001", "http://localhost:5000");
+                    e.WithUrls("http://localhost:5001");
+                    //.WithSubscriptions("http://localhost:5001", "http://localhost:5000");
                 });
             }
         }

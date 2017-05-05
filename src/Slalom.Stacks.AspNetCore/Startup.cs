@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -8,35 +10,42 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.AspNetCore.EndPoints;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
+using Slalom.Stacks.Text;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
-
     [Route("go")]
     public class Go : Controller
     {
         [HttpGet, AllowAnonymous]
         public string Do()
         {
-            return "Asdf";
+            //var url = new UrlHelper(this.ControllerContext);
+
+            //string virtualDirectory = url.Content("~");
+
+            return "adsf";
         }
     }
 
-
-    internal class RootStartup
+    internal class Startup
     {
-        public RootStartup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -50,48 +59,16 @@ namespace Slalom.Stacks.AspNetCore
         public IConfigurationRoot Configuration { get; }
 
         public static Stack Stack { get; set; }
+        public static AspNetCoreOptions Options { get; set; }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseCors(Options.CorsOptions);
 
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationScheme = "ApplicationCookie",
-                AutomaticAuthenticate = true,
-                Events = new CookieAuthenticationEvents
-                {
-                    OnSigningIn = a =>
-                    {
-                        Console.WriteLine("OnSigningIn");
-                        return Task.FromResult(0);
-                    },
-                    OnValidatePrincipal = a =>
-                    {
-                        Console.WriteLine("OnValidatePrincipal");
-                        return Task.FromResult(0);
-                    },
-                    OnRedirectToLogin = a =>
-                    {
-                        Console.WriteLine("OnRedirectToLogin");
-                        a.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        return Task.FromResult(0);
-                    }
-                }
-            });
+            app.UseCookieAuthentication(Options.CookieOptions);
 
             app.UseMvc();
-
-
-
-
-            //app.UseCors(b =>
-            //{
-            //    b.AllowAnyOrigin()
-            //        .AllowAnyHeader()
-            //        .AllowAnyMethod()
-            //        .AllowCredentials();
-            //});
+            
 
             var services = Stack.GetServices();
             if (services.EndPoints.Any(e => e.Public && !String.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
@@ -123,24 +100,43 @@ namespace Slalom.Stacks.AspNetCore
             Stack.Include(this);
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IUrlHelper, UrlHelper>();
+
 
             var defaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes("ApplicationCookie")
+                .AddAuthenticationSchemes("Cookies")
                 .Build();
 
-            services.AddMvc(setup =>
-                    {
-                        //setup.Filters.Add(new AuthorizeFilter(defaultPolicy));
-                    })
+            var mvc = services.AddMvc(setup =>
+                {
+                    setup.Filters.Add(new AuthorizeFilter(defaultPolicy));
+                })
                 .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });
+
+            foreach (var assembly in Stack.Assemblies)
+            {
+                mvc.AddApplicationPart(assembly);
+            }
 
             Stack.Use(builder =>
             {
-                builder.RegisterType<WebRequestContext>().As<IRequestContext>();
+                builder.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
                 builder.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
                 builder.Populate(services);
+                builder.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
             });
+
+            var dispatch = Stack.Container.Resolve<HttpDispatcher>();
+            foreach (var connection in Options.SubscriptionUrls)
+            {
+                using (var client = new HttpClient())
+                {
+                    var content = client.GetAsync(connection + "/_system/endpoints").Result.Content.ReadAsStringAsync().Result;
+                    var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
+                    dispatch.AddEndPoints(endPoints);
+                }
+            }
 
             return new AutofacServiceProvider(Stack.Container);
         }
