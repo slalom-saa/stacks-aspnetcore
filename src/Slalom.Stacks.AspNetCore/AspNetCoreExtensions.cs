@@ -4,7 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,8 +16,10 @@ using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.AspNetCore.EndPoints;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
+using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Text;
 using Slalom.Stacks.Validation;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
@@ -53,24 +58,61 @@ namespace Slalom.Stacks.AspNetCore
                 builder.UseUrls(options.Urls);
             }
 
-            if ((options.SubscriptionUrls?.Any() ?? false) && !String.IsNullOrWhiteSpace(options.Subscriber))
+
+            stack.Use(e =>
             {
-                using (var client = new HttpClient())
-                {
-                    foreach (var url in options.SubscriptionUrls)
-                    {
-                        var content = new StringContent(JsonConvert.SerializeObject(new
-                        {
-                            path = options.Subscriber
-                        }), Encoding.UTF8, "application/json");
-                        client.PostAsync(url + "/_system/events/subscribe", content).Wait();
-                    }
-                }
-            }
+                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
+                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
+                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
+            });
+
+            Task.Run(() => Subscribe(options));
 
             builder.Build().Run();
 
             return stack;
+        }
+
+        private static async Task Subscribe(AspNetCoreOptions options)
+        {
+            if ((options.SubscriptionUrls?.Any() ?? false) && !String.IsNullOrWhiteSpace(options.Subscriber))
+            {
+                var target = Startup.Stack.Container.Resolve<RemoteEndPointInventory>();
+                using (var client = new HttpClient())
+                {
+                    while (true)
+                    {
+                        foreach (var url in options.SubscriptionUrls)
+                        {
+                            try
+                            {
+                                var message = new StringContent(JsonConvert.SerializeObject(new
+                                {
+                                    path = options.Subscriber
+                                }), Encoding.UTF8, "application/json");
+                                await client.PostAsync(url + "/_system/events/subscribe", message);
+                            }
+                            catch
+                            {
+                            }
+                            try
+                            {
+                                var result = await client.GetAsync(url + "/_system/endpoints");
+                                if (result.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    var content = result.Content.ReadAsStringAsync().Result;
+                                    var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
+                                    target.AddEndPoints(endPoints);
+                                }
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        await Task.Delay(5000);
+                    }
+                }
+            }
         }
 
         /// <summary>

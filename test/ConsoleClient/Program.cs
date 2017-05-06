@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -65,7 +66,7 @@ namespace ConsoleClient
         }
     }
 
-    [EndPoint("sales/fproducts/add")]
+    [EndPoint("sales/fproducts/add", Secure = true)]
     public class AddProduct : EndPoint
     {
         public override void Receive()
@@ -74,7 +75,9 @@ namespace ConsoleClient
 
             var result = this.Send<string>(new B()).Result;
 
-            this.Respond(result.Response);
+            //this.Respond(result.Response);
+
+            this.Respond(Request.User.Identity.Name);
         }
     }
 
@@ -82,7 +85,6 @@ namespace ConsoleClient
     {
         static void Main(string[] args)
         {
-            Task.Delay(1000).Wait();
             using (var stack = new Stack())
             {
                 stack.RunWebHost(e =>

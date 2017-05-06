@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Slalom.Stacks.AspNetCore.EndPoints;
+using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore
@@ -14,15 +15,17 @@ namespace Slalom.Stacks.AspNetCore
     public class HttpDispatcher : IRemoteMessageDispatcher
     {
         private readonly IHttpContextAccessor _context;
+        private readonly RemoteEndPointInventory _endPoints;
 
-        public HttpDispatcher(IHttpContextAccessor context)
+        public HttpDispatcher(IHttpContextAccessor context, RemoteEndPointInventory endPoints)
         {
             _context = context;
+            _endPoints = endPoints;
         }
 
         public bool CanDispatch(Request request)
         {
-            return Enumerable.Any<RemoteEndPoint>(this.EndPoints, e => e.Path == request.Path);
+            return Enumerable.Any<RemoteEndPoint>(_endPoints.EndPoints, e => e.Path == request.Path);
         }
 
         public async Task<MessageResult> Dispatch(Request request, ExecutionContext parentContext, TimeSpan? timeout = null)
@@ -44,7 +47,7 @@ namespace Slalom.Stacks.AspNetCore
                 }
             }
 
-            var endPoint = Enumerable.First<RemoteEndPoint>(this.EndPoints, e => e.Path == request.Path);
+            var endPoint = Enumerable.First<RemoteEndPoint>(_endPoints.EndPoints, e => e.Path == request.Path);
             using (var client = new HttpClient(handler))
             {
                 var result = await client.GetAsync(endPoint.FullPath);
@@ -56,11 +59,6 @@ namespace Slalom.Stacks.AspNetCore
             }
         }
 
-        public void AddEndPoints(params RemoteEndPoint[] endPoints)
-        {
-            this.EndPoints.AddRange(endPoints);
-        }
-
-        public List<RemoteEndPoint> EndPoints { get; set; } = new List<RemoteEndPoint>();
+        
     }
 }

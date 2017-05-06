@@ -35,7 +35,6 @@ namespace Slalom.Stacks.AspNetCore
             var endPoint = _stack.GetEndPoint(context.Request);
             if (endPoint != null)
             {
-                await context.Authentication.ChallengeAsync("Cookies");
                 using (var stream = new MemoryStream())
                 {
                     context.Request.Body.CopyTo(stream);

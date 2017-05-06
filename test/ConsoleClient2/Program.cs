@@ -54,16 +54,10 @@ namespace ConsoleClient2
         {
             using (var stack = new Stack())
             {
-
-                //Thread.Sleep(3000);
-                //stack.UseAkka();
-
-                //stack.Schedule(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), new ConsumeEventFeedRequest("http://localhost:5000"));
-
                 stack.RunWebHost(e =>
                 {
-                    e.WithUrls("http://localhost:5001");
-                    //.WithSubscriptions("http://localhost:5001", "http://localhost:5000");
+                    e.WithUrls("http://localhost:5001")
+                    .WithSubscriptions("http://localhost:5001", "http://localhost:5000");
                 });
             }
         }

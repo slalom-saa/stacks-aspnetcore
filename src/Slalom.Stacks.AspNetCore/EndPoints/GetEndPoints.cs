@@ -8,20 +8,6 @@ using Slalom.Stacks.Services.Inventory;
 
 namespace Slalom.Stacks.AspNetCore.EndPoints
 {
-
-    public class RemoteEndPoint
-    {
-        public string Path { get; set; }
-
-        public string FullPath { get; set; }
-
-        public RemoteEndPoint(string path, string fullPath)
-        {
-            this.Path = path;
-            this.FullPath = fullPath;
-        }
-    }
-
     [EndPoint("_system/endpoints")]
     public class GetEndPoints : EndPoint
     {

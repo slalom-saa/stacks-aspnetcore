@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http.Authentication;
 
 namespace Slalom.Stacks.AspNetCore
 {
@@ -41,8 +42,23 @@ namespace Slalom.Stacks.AspNetCore
             {
                 OnRedirectToLogin = a =>
                 {
-                    a.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                    a.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     return Task.FromResult(0);
+                },
+                OnValidatePrincipal = async a =>
+                {
+                    if (a.Properties.ExpiresUtc <= DateTime.UtcNow)
+                    {
+                        await a.HttpContext.Authentication.SignOutAsync("Cookies");
+                    }
+                    else
+                    {
+                        await a.HttpContext.Authentication.SignInAsync("Cookies", a.Principal,
+                            new AuthenticationProperties
+                            {
+                                ExpiresUtc = DateTime.UtcNow.AddSeconds(10)
+                            });
+                    }
                 }
             }
         };

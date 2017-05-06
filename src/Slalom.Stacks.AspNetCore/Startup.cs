@@ -29,20 +29,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
-    [Route("go")]
-    public class Go : Controller
-    {
-        [HttpGet, AllowAnonymous]
-        public string Do()
-        {
-            //var url = new UrlHelper(this.ControllerContext);
-
-            //string virtualDirectory = url.Content("~");
-
-            return "adsf";
-        }
-    }
-
     internal class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -100,8 +86,6 @@ namespace Slalom.Stacks.AspNetCore
             Stack.Include(this);
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddTransient<IUrlHelper, UrlHelper>();
-
 
             var defaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
@@ -121,23 +105,8 @@ namespace Slalom.Stacks.AspNetCore
 
             Stack.Use(builder =>
             {
-                builder.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
-                builder.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
                 builder.Populate(services);
-                builder.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
             });
-
-            var dispatch = Stack.Container.Resolve<HttpDispatcher>();
-            foreach (var connection in Options.SubscriptionUrls)
-            {
-                using (var client = new HttpClient())
-                {
-                    var content = client.GetAsync(connection + "/_system/endpoints").Result.Content.ReadAsStringAsync().Result;
-                    var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
-                    dispatch.AddEndPoints(endPoints);
-                }
-            }
-
             return new AutofacServiceProvider(Stack.Container);
         }
     }
