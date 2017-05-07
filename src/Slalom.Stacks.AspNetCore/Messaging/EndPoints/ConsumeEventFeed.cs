@@ -1,6 +1,12 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,17 +15,25 @@ using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore.Events.EndPoints
 {
+    /// <summary>
+    /// Requests events from a remote feed and then publishes them to any listeners locally.
+    /// </summary>
     public class ConsumeEventFeed : EndPoint<ConsumeEventFeedRequest>
     {
         private readonly IMessageGateway _messages;
         private readonly List<string> _received = new List<string>();
-        private DateTimeOffset? _start;
+        private DateTimeOffset? _lastReceived;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsumeEventFeed" /> class.
+        /// </summary>
+        /// <param name="messages">The configured <see cref="IMessageGateway"/>.</param>
         public ConsumeEventFeed(IMessageGateway messages)
         {
             _messages = messages;
         }
 
+        /// <inheritdoc />
         public override void Receive(ConsumeEventFeedRequest instance)
         {
             using (var client = new HttpClient())
@@ -37,9 +51,9 @@ namespace Slalom.Stacks.AspNetCore.Events.EndPoints
                         _messages.Publish(name, item.ToString());
 
                         var last = DateTimeOffset.Parse(item["timeStamp"].Value<string>());
-                        if (_start == null || last > _start)
+                        if (_lastReceived == null || last > _lastReceived)
                         {
-                            _start = last;
+                            _lastReceived = last;
                         }
                     }
                 }
@@ -49,9 +63,9 @@ namespace Slalom.Stacks.AspNetCore.Events.EndPoints
         private string GetUrl(ConsumeEventFeedRequest instance)
         {
             var root = instance.Url + "/_system/events";
-            if (_start.HasValue)
+            if (_lastReceived.HasValue)
             {
-                root += "?start=" + _start.Value;
+                root += "?start=" + _lastReceived.Value;
             }
             return root;
         }

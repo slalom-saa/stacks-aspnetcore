@@ -1,25 +1,27 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Security.Principal;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Slalom.Stacks.AspNetCore.EndPoints;
+using Slalom.Stacks.AspNetCore.Messaging;
+using Slalom.Stacks.AspNetCore.Swagger;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
-using Slalom.Stacks.Text;
-using Slalom.Stacks.Validation;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.AspNetCore
 {
@@ -28,7 +30,7 @@ namespace Slalom.Stacks.AspNetCore
     /// </summary>
     public static class AspNetCoreExtensions
     {
-        public static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
+        internal static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
         {
             var path = request.Path.Value.Trim('/');
             var inventory = stack.GetServices();
@@ -73,9 +75,20 @@ namespace Slalom.Stacks.AspNetCore
             return stack;
         }
 
+        /// <summary>
+        /// Configures the application to use Stacks.
+        /// </summary>
+        /// <param name="app">The application to configure.</param>
+        /// <param name="stack">The current stack.</param>
+        /// <returns>This instance for method chaining.</returns>
+        public static IApplicationBuilder UseStacks(this IApplicationBuilder app, Stack stack)
+        {
+            return app.UseMiddleware<StacksMiddleware>(stack);
+        }
+
         private static async Task Subscribe(AspNetCoreOptions options)
         {
-            if ((options.SubscriptionUrls?.Any() ?? false) && !String.IsNullOrWhiteSpace(options.Subscriber))
+            if ((options.SubscriptionUrls?.Any() ?? false) && !string.IsNullOrWhiteSpace(options.Subscriber))
             {
                 var target = Startup.Stack.Container.Resolve<RemoteEndPointInventory>();
                 using (var client = new HttpClient())
@@ -98,7 +111,7 @@ namespace Slalom.Stacks.AspNetCore
                             try
                             {
                                 var result = await client.GetAsync(url + "/_system/endpoints");
-                                if (result.StatusCode == System.Net.HttpStatusCode.OK)
+                                if (result.StatusCode == HttpStatusCode.OK)
                                 {
                                     var content = result.Content.ReadAsStringAsync().Result;
                                     var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
@@ -113,17 +126,6 @@ namespace Slalom.Stacks.AspNetCore
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Configures the application to use Stacks.
-        /// </summary>
-        /// <param name="app">The application to configure.</param>
-        /// <param name="stack">The current stack.</param>
-        /// <returns>This instance for method chaining.</returns>
-        public static IApplicationBuilder UseStacks(this IApplicationBuilder app, Stack stack)
-        {
-            return app.UseMiddleware<StacksMiddleware>(stack);
         }
     }
 }

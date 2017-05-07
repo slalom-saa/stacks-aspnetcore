@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Model
 {
     public abstract class SecurityScheme
     {
         public SecurityScheme()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public string Type { get; set; }

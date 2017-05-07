@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Converters;
-using Slalom.Stacks.Validation;
-using Swashbuckle.AspNetCore.Swagger;
+using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     public class SchemaRegistry : ISchemaRegistry
     {
@@ -25,7 +24,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             _jsonContractResolver = _jsonSerializerSettings.ContractResolver ?? new DefaultContractResolver();
             _settings = settings ?? new SchemaRegistrySettings();
             _schemaIdManager = new SchemaIdManager(_settings.SchemaIdSelector);
-            Definitions = new Dictionary<string, Schema>();
+            this.Definitions = new Dictionary<string, Schema>();
         }
 
         public IDictionary<string, Schema> Definitions { get; private set; }
@@ -33,20 +32,20 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
         public Schema GetOrRegister(Type type)
         {
             var referencedTypes = new Queue<Type>();
-            var schema = CreateSchema(type, referencedTypes);
+            var schema = this.CreateSchema(type, referencedTypes);
 
             // Ensure all referenced types have a corresponding definition
             while (referencedTypes.Any())
             {
                 var referencedType = referencedTypes.Dequeue();
                 var schemaId = _schemaIdManager.IdFor(referencedType);
-                if (Definitions.ContainsKey(schemaId)) continue;
+                if (this.Definitions.ContainsKey(schemaId)) continue;
 
                 // NOTE: Add the schemaId first with a null value. This indicates a work-in-progress
                 // and prevents a stack overflow by ensuring the above condition is met if the same
                 // type ends up back on the referencedTypes queue via recursion within 'CreateInlineSchema'
-                Definitions.Add(schemaId, null);
-                Definitions[schemaId] = CreateInlineSchema(referencedType, referencedTypes);
+                this.Definitions.Add(schemaId, null);
+                this.Definitions[schemaId] = this.CreateInlineSchema(referencedType, referencedTypes);
             }
 
             return schema;
@@ -61,8 +60,8 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                 && (jsonContract is JsonObjectContract || jsonContract.IsSelfReferencingArrayOrDictionary());
 
             return createReference
-                ? CreateReferenceSchema(type, referencedTypes)
-                : CreateInlineSchema(type, referencedTypes);
+                ? this.CreateReferenceSchema(type, referencedTypes)
+                : this.CreateInlineSchema(type, referencedTypes);
         }
 
         private Schema CreateReferenceSchema(Type type, Queue<Type> referencedTypes)
@@ -85,13 +84,13 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             {
                 // TODO: Perhaps a "Chain of Responsibility" would clean this up a little?
                 if (jsonContract is JsonPrimitiveContract)
-                    schema = CreatePrimitiveSchema((JsonPrimitiveContract)jsonContract);
+                    schema = this.CreatePrimitiveSchema((JsonPrimitiveContract)jsonContract);
                 else if (jsonContract is JsonDictionaryContract)
-                    schema = CreateDictionarySchema((JsonDictionaryContract)jsonContract, referencedTypes);
+                    schema = this.CreateDictionarySchema((JsonDictionaryContract)jsonContract, referencedTypes);
                 else if (jsonContract is JsonArrayContract)
-                    schema = CreateArraySchema((JsonArrayContract)jsonContract, referencedTypes);
+                    schema = this.CreateArraySchema((JsonArrayContract)jsonContract, referencedTypes);
                 else if (jsonContract is JsonObjectContract && type != typeof(object))
-                    schema = CreateObjectSchema((JsonObjectContract)jsonContract, referencedTypes);
+                    schema = this.CreateObjectSchema((JsonObjectContract)jsonContract, referencedTypes);
                 else
                     // None of the above, fallback to abstract "object"
                     schema = new Schema { Type = "object" };
@@ -112,7 +111,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                 ?? primitiveContract.UnderlyingType;
 
             if (type.GetTypeInfo().IsEnum)
-                return CreateEnumSchema(primitiveContract, type);
+                return this.CreateEnumSchema(primitiveContract, type);
 
             if (PrimitiveTypeMap.ContainsKey(type))
                 return PrimitiveTypeMap[type]();
@@ -160,7 +159,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     Type = "object",
                     Properties = Enum.GetNames(keyType).ToDictionary(
                         (name) => dictionaryContract.DictionaryKeyResolver(name),
-                        (name) => CreateSchema(valueType, referencedTypes)
+                        (name) => this.CreateSchema(valueType, referencedTypes)
                     )
                 };
             }
@@ -169,7 +168,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                 return new Schema
                 {
                     Type = "object",
-                    AdditionalProperties = CreateSchema(valueType, referencedTypes)
+                    AdditionalProperties = this.CreateSchema(valueType, referencedTypes)
                 };
             }
         }
@@ -180,7 +179,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             return new Schema
             {
                 Type = "array",
-                Items = CreateSchema(itemType, referencedTypes)
+                Items = this.CreateSchema(itemType, referencedTypes)
             };
         }
 
@@ -191,7 +190,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                                          .Where(p => !(_settings.IgnoreObsoleteProperties && p.IsObsolete()))
                                          .ToDictionary(
                                              prop => prop.PropertyName,
-                                             prop => CreateSchema(prop.PropertyType, referencedTypes).AssignValidationProperties(prop)
+                                             prop => this.CreateSchema(prop.PropertyType, referencedTypes).AssignValidationProperties(prop)
                                          );
 
             var required = jsonContract.Properties.Where(prop => prop.IsRequired())

@@ -1,3 +1,10 @@
+/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
 using System;
 using System.IO;
 using System.Net;
@@ -11,24 +18,10 @@ using Microsoft.AspNetCore.Http.Authentication;
 namespace Slalom.Stacks.AspNetCore
 {
     /// <summary>
-    /// Options for AspNetCore blocks.
+    /// Options for AspNetCore.
     /// </summary>
     public class AspNetCoreOptions
     {
-        internal string Subscriber { get; set; }
-
-        internal string[] SubscriptionUrls { get; set; } = new string[0];
-
-        internal string[] Urls { get; set; }
-
-        internal Action<CorsPolicyBuilder> CorsOptions { get; set; } = builder =>
-        {
-            builder.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        };
-
         internal CookieAuthenticationOptions CookieOptions { get; set; } = new CookieAuthenticationOptions
         {
             AuthenticationScheme = "Cookies",
@@ -42,7 +35,7 @@ namespace Slalom.Stacks.AspNetCore
             {
                 OnRedirectToLogin = a =>
                 {
-                    a.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    a.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
                     return Task.FromResult(0);
                 },
                 OnValidatePrincipal = async a =>
@@ -63,16 +56,23 @@ namespace Slalom.Stacks.AspNetCore
             }
         };
 
-        /// <summary>
-        /// Creates subscriptions at the specified URLs.
-        /// </summary>
-        /// <param name="subscriber">The subsciber URL to call, not including path.</param>
-        /// <param name="urls">The urls to subscribe to.</param>
-        /// <returns>This instance for method chaining.</returns>
-        public AspNetCoreOptions WithSubscriptions(string subscriber, params string[] urls)
+        internal Action<CorsPolicyBuilder> CorsOptions { get; set; } = builder =>
         {
-            this.Subscriber = subscriber;
-            this.SubscriptionUrls = urls;
+            builder.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        };
+
+        internal string Subscriber { get; set; }
+
+        internal string[] SubscriptionUrls { get; set; } = new string[0];
+
+        internal string[] Urls { get; set; }
+
+        public AspNetCoreOptions WithCookieAuthentication(CookieAuthenticationOptions options)
+        {
+            this.CookieOptions = options;
 
             return this;
         }
@@ -84,9 +84,16 @@ namespace Slalom.Stacks.AspNetCore
             return this;
         }
 
-        public AspNetCoreOptions WithCookieAuthentication(CookieAuthenticationOptions options)
+        /// <summary>
+        /// Creates subscriptions at the specified URLs.
+        /// </summary>
+        /// <param name="subscriber">The subsciber URL to call, not including path.</param>
+        /// <param name="urls">The urls to subscribe to.</param>
+        /// <returns>This instance for method chaining.</returns>
+        public AspNetCoreOptions WithSubscriptions(string subscriber, params string[] urls)
         {
-            this.CookieOptions = options;
+            this.Subscriber = subscriber;
+            this.SubscriptionUrls = urls;
 
             return this;
         }

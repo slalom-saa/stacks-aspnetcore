@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Model
 {
     public interface ISwaggerProvider
     {

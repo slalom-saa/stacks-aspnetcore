@@ -1,9 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.StaticFiles;
-using Swashbuckle.AspNetCore.SwaggerUI;
 
-namespace Microsoft.AspNetCore.Builder
+namespace Slalom.Stacks.AspNetCore.Swagger.UI.Application
 {
     public static class SwaggerUIBuilderExtensions
     {

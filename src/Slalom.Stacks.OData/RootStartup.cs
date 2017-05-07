@@ -13,10 +13,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Owin;
 using Slalom.Stacks.AspNetCore;
+using Slalom.Stacks.AspNetCore.Messaging;
+using Slalom.Stacks.AspNetCore.Swagger;
+using Slalom.Stacks.AspNetCore.Swagger.Application;
+using Slalom.Stacks.AspNetCore.Swagger.UI.Application;
 using Slalom.Stacks.OData.OData;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Slalom.Stacks.OData
 {

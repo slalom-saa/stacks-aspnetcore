@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Swashbuckle.AspNetCore.SwaggerUI
+namespace Slalom.Stacks.AspNetCore.Swagger.UI.Template
 {
     public class IndexSettings
     {
@@ -16,7 +16,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
 
         public IDictionary<string, string> ToTemplateParameters()
         {
-            if (!JSConfig.SwaggerEndpoints.Any())
+            if (!this.JSConfig.SwaggerEndpoints.Any())
                 throw new InvalidOperationException(
                     "Swagger endpoint(s) not specified. " +
                     "One or more Swagger JSON URL's must be provided to use the swagger-ui."
@@ -24,15 +24,15 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
 
             return new Dictionary<string, string>
             {
-                { "%(StylesheetsHtml)", GetStylesheetsHtml() },
-                { "%(JSConfig)", GetJSConfigJson() }
+                { "%(StylesheetsHtml)", this.GetStylesheetsHtml() },
+                { "%(JSConfig)", this.GetJSConfigJson() }
             };
         }
 
         private string GetStylesheetsHtml()
         {
             var builder = new StringBuilder();
-            foreach (var ss in Stylesheets)
+            foreach (var ss in this.Stylesheets)
             {
                 builder.AppendLine($"<link href='{ss.Href}' rel='stylesheet' media='{ss.Media}' type='text/css' />");
             }
@@ -49,7 +49,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
 
             using (var writer = new StringWriter())
             {
-                serializer.Serialize(writer, JSConfig);
+                serializer.Serialize(writer, this.JSConfig);
                 return writer.ToString();
             }
         }

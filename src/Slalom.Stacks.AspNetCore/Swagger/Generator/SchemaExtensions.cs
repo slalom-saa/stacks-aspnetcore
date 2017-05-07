@@ -1,11 +1,13 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+#if core
+using System.Reflection;
+#endif
+
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     internal static class SchemaExtensions
     {
@@ -13,38 +15,51 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
         {
             var propInfo = jsonProperty.PropertyInfo();
             if (propInfo == null)
+            {
                 return schema;
+            }
 
             foreach (var attribute in propInfo.GetCustomAttributes(false))
             {
-
                 var defaultValue = attribute as DefaultValueAttribute;
                 if (defaultValue != null)
+                {
                     schema.Default = defaultValue.Value;
+                }
 
                 var regex = attribute as RegularExpressionAttribute;
                 if (regex != null)
+                {
                     schema.Pattern = regex.Pattern;
+                }
 
                 var range = attribute as RangeAttribute;
                 if (range != null)
                 {
                     int maximum;
-                    if (Int32.TryParse(range.Maximum.ToString(), out maximum))
+                    if (int.TryParse(range.Maximum.ToString(), out maximum))
+                    {
                         schema.Maximum = maximum;
+                    }
 
                     int minimum;
-                    if (Int32.TryParse(range.Minimum.ToString(), out minimum))
+                    if (int.TryParse(range.Minimum.ToString(), out minimum))
+                    {
                         schema.Minimum = minimum;
+                    }
                 }
 
                 var minLength = attribute as MinLengthAttribute;
                 if (minLength != null)
+                {
                     schema.MinLength = minLength.Length;
+                }
 
                 var maxLength = attribute as MaxLengthAttribute;
                 if (maxLength != null)
+                {
                     schema.MaxLength = maxLength.Length;
+                }
 
                 var stringLength = attribute as StringLengthAttribute;
                 if (stringLength != null)
@@ -55,14 +70,19 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             }
 
             if (!jsonProperty.Writable)
+            {
                 schema.ReadOnly = true;
+            }
 
             return schema;
         }
 
         internal static void PopulateFrom(this PartialSchema partialSchema, Schema schema)
         {
-            if (schema == null) return;
+            if (schema == null)
+            {
+                return;
+            }
 
             partialSchema.Type = schema.Type;
             partialSchema.Format = schema.Format;

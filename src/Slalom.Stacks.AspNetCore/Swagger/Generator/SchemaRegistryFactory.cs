@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     public class SchemaRegistryFactory : ISchemaRegistryFactory
     {

@@ -23,7 +23,6 @@ using Slalom.Stacks.Validation;
 using EndPoint = Slalom.Stacks.Services.EndPoint;
 using Autofac;
 using Newtonsoft.Json;
-using Slalom.Stacks.AspNetCore.EndPoints;
 
 namespace ConsoleClient
 {

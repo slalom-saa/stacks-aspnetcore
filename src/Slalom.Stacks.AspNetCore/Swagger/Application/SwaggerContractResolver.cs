@@ -3,7 +3,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Application
 {
     public class SwaggerContractResolver : CamelCasePropertyNamesContractResolver
     {
@@ -11,7 +11,7 @@ namespace Swashbuckle.AspNetCore.Swagger
 
         public SwaggerContractResolver(JsonSerializerSettings applicationSerializerSettings)
         {
-            NamingStrategy = new CamelCaseNamingStrategy { ProcessDictionaryKeys = false };
+            this.NamingStrategy = new CamelCaseNamingStrategy { ProcessDictionaryKeys = false };
             _applicationTypeConverter = new ApplicationTypeConverter(applicationSerializerSettings);
         }
 

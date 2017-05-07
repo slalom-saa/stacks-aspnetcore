@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,14 +16,18 @@ using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore.Events
 {
+    /// <summary>
+    /// An HTTP based <see cref="IEventPublisher" />.
+    /// </summary>
     public class HttpEventPublisher : IEventPublisher
     {
-        private List<string> _paths = new List<string>();
-        private HttpClient _client = new HttpClient();
+        private readonly HttpClient _client = new HttpClient();
+        private readonly List<string> _urls = new List<string>();
 
+        /// <inheritdoc />
         public Task Publish(params EventMessage[] events)
         {
-            if (events.Any() && _paths.Any())
+            if (events.Any() && _urls.Any())
             {
                 var settings = new JsonSerializerSettings
                 {
@@ -30,17 +40,21 @@ namespace Slalom.Stacks.AspNetCore.Events
                 }, settings);
                 var body = new StringContent(content, Encoding.UTF8, "application/json");
 
-                return Task.WhenAll(_paths.Select(e => _client.PostAsync(e + "/_system/events/publish", body)));
+                return Task.WhenAll(_urls.Select(e => _client.PostAsync(e + "/_system/events/publish", body)));
             }
             return Task.FromResult(0);
         }
 
-        public void Subscribe(string path)
+        /// <summary>
+        /// Creates a subscription using the specified URL.
+        /// </summary>
+        /// <param name="url">The URL that will be published to.</param>
+        public void Subscribe(string url)
         {
-            path = path.TrimEnd('/');
-            if (!_paths.Contains(path))
+            url = url.TrimEnd('/');
+            if (!_urls.Contains(url))
             {
-                _paths.Add(path);
+                _urls.Add(url);
             }
         }
     }

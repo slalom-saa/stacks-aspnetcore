@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Application
 {
     public class SwaggerOptions
     {
         public SwaggerOptions()
         {
-            PreSerializeFilters = new List<Action<SwaggerDocument, HttpRequest>>();
+            this.PreSerializeFilters = new List<Action<SwaggerDocument, HttpRequest>>();
         }
 
         /// <summary>

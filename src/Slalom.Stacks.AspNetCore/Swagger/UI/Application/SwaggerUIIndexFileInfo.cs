@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
 
-namespace Swashbuckle.AspNetCore.SwaggerUI
+namespace Slalom.Stacks.AspNetCore.Swagger.UI.Application
 {
     public class SwaggerUIIndexFileInfo : IFileInfo
     {
@@ -30,7 +30,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
             {
                 if (!_length.HasValue)
                 {
-                    using (var stream = CreateParameterizedStream())
+                    using (var stream = this.CreateParameterizedStream())
                     {
                         _length = stream.Length;
                     }
@@ -49,7 +49,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
 
         public Stream CreateReadStream()
         {
-            var stream = CreateParameterizedStream();
+            var stream = this.CreateParameterizedStream();
             if (!_length.HasValue)
             {
                 _length = stream.Length;

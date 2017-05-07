@@ -1,18 +1,24 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.AspNetCore.Messaging
 {
-    public static class MimeTypes
+    /// <summary>
+    /// Contains MIME types and methods to determine them.
+    /// </summary>
+    internal static class MimeTypes
     {
-        private static IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
-
-            #region Big freaking list of mime types
-            // combination of values from Windows 7 Registry and 
-            // from C:\Windows\System32\inetsrv\config\applicationHost.config
-            // some added, including .7z and .dat
+        #region Dictionary
+        private static readonly IDictionary<string, string> Mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
             {".323", "text/h323"},
             {".3g2", "video/3gpp2"},
             {".3gp", "video/3gpp"},
@@ -572,26 +578,29 @@ namespace Slalom.Stacks.AspNetCore
             {".xtp", "application/octet-stream"},
             {".xwd", "image/x-xwindowdump"},
             {".z", "application/x-compress"},
-            {".zip", "application/x-zip-compressed"},
-            #endregion
-
+            {".zip", "application/x-zip-compressed"}
         };
+        #endregion
 
+        /// <summary>
+        /// Gets the MIME type based on the specified file extension.
+        /// </summary>
+        /// <param name="extension">The file extension.</param>
+        /// <returns>Returns the MIME type based on the specified file extension.</returns>
         public static string GetMimeType(string extension)
         {
-            if (extension == null)
-            {
-                throw new ArgumentNullException("extension");
-            }
+            Argument.NotNullOrWhiteSpace(extension, nameof(extension));
 
             if (!extension.StartsWith("."))
             {
                 extension = "." + extension;
             }
 
-            string mime;
-
-            return _mappings.TryGetValue(extension, out mime) ? mime : "application/octet-stream";
+            if (Mappings.ContainsKey(extension))
+            {
+                return Mappings[extension];
+            }
+            return "application/octet-stream";
         }
     }
 }

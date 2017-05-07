@@ -1,5 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
@@ -15,8 +21,8 @@ namespace Slalom.Stacks.AspNetCore
 {
     public class StacksMiddleware
     {
-        private readonly Stack _stack;
         private readonly RequestDelegate _next;
+        private readonly Stack _stack;
 
         public StacksMiddleware(RequestDelegate next, Stack stack)
         {
@@ -78,7 +84,7 @@ namespace Slalom.Stacks.AspNetCore
             {
                 if (result.Response is Document)
                 {
-                    Respond(context, (Document)result.Response, HttpStatusCode.OK);
+                    Respond(context, (Document) result.Response, HttpStatusCode.OK);
                 }
                 else
                 {
@@ -87,7 +93,7 @@ namespace Slalom.Stacks.AspNetCore
             }
             else
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+                context.Response.StatusCode = (int) HttpStatusCode.NoContent;
             }
         }
 
@@ -96,7 +102,7 @@ namespace Slalom.Stacks.AspNetCore
             using (var stream = new MemoryStream(content.Content))
             {
                 context.Response.ContentType = MimeTypes.GetMimeType(Path.GetExtension(content.Name));
-                context.Response.StatusCode = (int)statusCode;
+                context.Response.StatusCode = (int) statusCode;
                 context.Response.ContentLength = content.Content.Length;
                 stream.CopyTo(context.Response.Body);
             }
@@ -112,7 +118,7 @@ namespace Slalom.Stacks.AspNetCore
             using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content, settings))))
             {
                 context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)statusCode;
+                context.Response.StatusCode = (int) statusCode;
                 context.Response.ContentLength = inner.ToArray().Length;
                 inner.CopyTo(context.Response.Body);
             }

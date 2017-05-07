@@ -1,4 +1,4 @@
-﻿namespace Swashbuckle.AspNetCore.SwaggerGen
+﻿namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     public interface ISchemaRegistryFactory
     {
