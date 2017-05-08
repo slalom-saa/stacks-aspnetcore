@@ -101,7 +101,7 @@ namespace Slalom.Stacks.AspNetCore
                             {
                                 var message = new StringContent(JsonConvert.SerializeObject(new
                                 {
-                                    path = options.Subscriber
+                                    url = options.Subscriber
                                 }), Encoding.UTF8, "application/json");
                                 await client.PostAsync(url + "/_system/events/subscribe", message);
                             }
