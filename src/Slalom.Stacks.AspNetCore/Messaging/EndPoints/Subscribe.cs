@@ -8,7 +8,7 @@
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore.Events.EndPoints
+namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
 {
     /// <summary>
     /// Creates an event subscription and published raised events to the specified URL.

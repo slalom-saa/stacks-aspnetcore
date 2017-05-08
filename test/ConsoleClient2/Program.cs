@@ -56,8 +56,7 @@ namespace ConsoleClient2
             {
                 stack.RunWebHost(e =>
                 {
-                    e.WithUrls("http://localhost:5001")
-                    .WithSubscriptions("http://localhost:5001", "http://localhost:5000");
+                    e.WithUrls("http://localhost:5001");
                 });
             }
         }

@@ -11,7 +11,7 @@ using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore.Events.EndPoints
+namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
 {
     /// <summary>
     /// Publishes events using the provided JSON text.

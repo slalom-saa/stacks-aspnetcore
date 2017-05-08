@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.AspNetCore.Events.EndPoints
+namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
 {
     /// <summary>
     /// Requests events from a remote feed and then publishes them to any listeners locally.

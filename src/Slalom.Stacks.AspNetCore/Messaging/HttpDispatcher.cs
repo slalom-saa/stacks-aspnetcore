@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.AspNetCore.Messaging
 {
     public class HttpDispatcher : IRemoteMessageDispatcher
     {

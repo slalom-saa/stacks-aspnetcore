@@ -21,6 +21,7 @@ using Slalom.Stacks.AspNetCore.Swagger.Application;
 using Slalom.Stacks.AspNetCore.Swagger.Generator;
 using Slalom.Stacks.AspNetCore.Swagger.UI.Application;
 using Slalom.Stacks.Services;
+using Autofac;
 
 namespace Slalom.Stacks.AspNetCore.Messaging
 {
@@ -28,16 +29,8 @@ namespace Slalom.Stacks.AspNetCore.Messaging
     {
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
-                .AddEnvironmentVariables();
-
-            this.Configuration = builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; }
         public static AspNetCoreOptions Options { get; set; }
 
         public static Stack Stack { get; set; }
@@ -49,7 +42,6 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             app.UseCookieAuthentication(Options.CookieOptions);
 
             app.UseMvc();
-
 
             var services = Stack.GetServices();
             if (services.EndPoints.Any(e => e.Public && !string.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
