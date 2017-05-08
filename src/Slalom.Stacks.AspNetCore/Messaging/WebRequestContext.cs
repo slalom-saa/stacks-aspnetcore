@@ -1,8 +1,15 @@
+/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.AspNetCore.Messaging
 {
     public class WebRequestContext : Request
     {

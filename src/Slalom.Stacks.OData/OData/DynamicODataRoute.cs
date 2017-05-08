@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using System.Web.OData.Routing;
 
-namespace Slalom.Stacks.AspNetCore.OData
+namespace Slalom.Stacks.OData.OData
 {
     public class DynamicODataRoute : ODataRoute
     {
@@ -19,7 +18,7 @@ namespace Slalom.Stacks.AspNetCore.OData
         public DynamicODataRoute(string routePrefix, ODataPathRouteConstraint pathConstraint)
             : base(routePrefix, pathConstraint)
         {
-            _canGenerateDirectLink = routePrefix != null && RoutePrefix.IndexOf('{') == -1;
+            _canGenerateDirectLink = routePrefix != null && this.RoutePrefix.IndexOf('{') == -1;
         }
 
         public override IHttpVirtualPathData GetVirtualPath(HttpRequestMessage request, IDictionary<string, object> values)
@@ -38,7 +37,7 @@ namespace Slalom.Stacks.AspNetCore.OData
             string odataPath = odataPathValue as string;
             if (odataPath != null)
             {
-                return GenerateLinkDirectly(request, odataPath) ?? base.GetVirtualPath(request, values);
+                return this.GenerateLinkDirectly(request, odataPath) ?? base.GetVirtualPath(request, values);
             }
 
             return null;
@@ -55,7 +54,7 @@ namespace Slalom.Stacks.AspNetCore.OData
                 return null;
 
             string dataSource = request.Properties[Constants.ODataDataSource] as string;
-            string link = CombinePathSegments(RoutePrefix, dataSource);
+            string link = CombinePathSegments(this.RoutePrefix, dataSource);
             link = CombinePathSegments(link, odataPath);
             link = UriEncode(link);
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Swashbuckle.AspNetCore.Swagger;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     public interface ISchemaRegistry
     {

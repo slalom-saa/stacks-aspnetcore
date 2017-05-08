@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     public class SchemaIdManager
     {

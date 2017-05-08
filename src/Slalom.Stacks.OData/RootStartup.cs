@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using System.Web.OData.Extensions;
@@ -13,21 +8,20 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Owin;
-using Slalom.Stacks.AspNetCore.OData;
-using Slalom.Stacks.Reflection;
+using Slalom.Stacks.AspNetCore;
+using Slalom.Stacks.AspNetCore.Messaging;
+using Slalom.Stacks.AspNetCore.Swagger;
+using Slalom.Stacks.AspNetCore.Swagger.Application;
+using Slalom.Stacks.AspNetCore.Swagger.UI.Application;
+using Slalom.Stacks.OData.OData;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Messaging;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.OData
 {
     internal class RootStartup
     {

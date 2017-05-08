@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
 
-namespace Slalom.Stacks.AspNetCore.OData
+namespace Slalom.Stacks.OData.OData
 {
     public class DynamicODataRoutingConvention : IODataRoutingConvention
     {

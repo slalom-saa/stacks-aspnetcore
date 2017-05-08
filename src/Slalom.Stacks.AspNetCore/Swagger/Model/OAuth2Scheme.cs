@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Model
 {
     public class OAuth2Scheme : SecurityScheme
     {
         public OAuth2Scheme()
         {
-            Type = "oauth2";
+            this.Type = "oauth2";
         }
 
         public string Flow { get; set; }

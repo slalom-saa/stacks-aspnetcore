@@ -59,6 +59,7 @@ function Go ($Path) {
 Push-Location $PSScriptRoot
 
 Go ..\src\Slalom.Stacks.AspNetCore
+Go ..\src\Slalom.Stacks.OData
 
 Pop-Location
 

@@ -1,4 +1,4 @@
-﻿namespace Swashbuckle.AspNetCore.Swagger
+﻿namespace Slalom.Stacks.AspNetCore.Swagger.Model
 {
     public class ApiKeyScheme : SecurityScheme
     {
@@ -8,7 +8,7 @@
 
         public ApiKeyScheme()
         {
-            Type = "apiKey";
+            this.Type = "apiKey";
         }
     }
 }

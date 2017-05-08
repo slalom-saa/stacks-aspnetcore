@@ -1,16 +1,27 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.AspNetCore.Messaging;
+using Slalom.Stacks.AspNetCore.Swagger;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
-using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.AspNetCore
 {
@@ -19,6 +30,13 @@ namespace Slalom.Stacks.AspNetCore
     /// </summary>
     public static class AspNetCoreExtensions
     {
+        internal static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
+        {
+            var path = request.Path.Value.Trim('/');
+            var inventory = stack.GetServices();
+            return inventory.Find(path);
+        }
+
         /// <summary>
         /// Starts and runs an API to access the stack.
         /// </summary>
@@ -29,17 +47,28 @@ namespace Slalom.Stacks.AspNetCore
             var options = new AspNetCoreOptions();
             configuration?.Invoke(options);
 
-            RootStartup.Stack = stack;
+            Startup.Stack = stack;
+            Startup.Options = options;
             var builder = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
-                .UseStartup<RootStartup>();
+                .UseStartup<Startup>();
 
             if (options.Urls?.Any() ?? false)
             {
                 builder.UseUrls(options.Urls);
             }
+
+
+            stack.Use(e =>
+            {
+                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
+                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
+                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
+            });
+
+            Task.Run(() => Subscribe(options));
 
             builder.Build().Run();
 
@@ -54,93 +83,48 @@ namespace Slalom.Stacks.AspNetCore
         /// <returns>This instance for method chaining.</returns>
         public static IApplicationBuilder UseStacks(this IApplicationBuilder app, Stack stack)
         {
-            app.Use(async (context, next) =>
-            {
-                var path = context.Request.Path.Value.Trim('/');
-                var registry = stack.GetServices();
-                if (registry.Find(path) != null)
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        context.Request.Body.CopyTo(stream);
+            return app.UseMiddleware<StacksMiddleware>(stack);
+        }
 
-                        var content = Encoding.UTF8.GetString(stream.ToArray());
-                        if (string.IsNullOrWhiteSpace(content))
+        private static async Task Subscribe(AspNetCoreOptions options)
+        {
+            if ((options.SubscriptionUrls?.Any() ?? false) && !string.IsNullOrWhiteSpace(options.Subscriber))
+            {
+                var target = Startup.Stack.Container.Resolve<RemoteEndPointInventory>();
+                using (var client = new HttpClient())
+                {
+                    while (true)
+                    {
+                        foreach (var url in options.SubscriptionUrls)
                         {
-                            content = null;
+                            try
+                            {
+                                var message = new StringContent(JsonConvert.SerializeObject(new
+                                {
+                                    url = options.Subscriber
+                                }), Encoding.UTF8, "application/json");
+                                await client.PostAsync(url + "/_system/events/subscribe", message);
+                            }
+                            catch
+                            {
+                            }
+                            try
+                            {
+                                var result = await client.GetAsync(url + "/_system/endpoints");
+                                if (result.StatusCode == HttpStatusCode.OK)
+                                {
+                                    var content = result.Content.ReadAsStringAsync().Result;
+                                    var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
+                                    target.AddEndPoints(endPoints);
+                                }
+                            }
+                            catch
+                            {
+                            }
                         }
-                        var result = await stack.Send(path, content);
-                        HandleResult(result, context);
+                        await Task.Delay(5000);
                     }
                 }
-                else
-                {
-                    await next.Invoke();
-                }
-            });
-            return app;
-        }
-
-        private static void HandleResult(MessageResult result, HttpContext context)
-        {
-            if (result.ValidationErrors.Any(e => e.Type == ValidationType.Input))
-            {
-                Respond(context, result.ValidationErrors, HttpStatusCode.BadRequest);
-            }
-            if (result.ValidationErrors.Any(e => e.Type == ValidationType.Security))
-            {
-                Respond(context, result.ValidationErrors, HttpStatusCode.Unauthorized);
-            }
-            else if (result.ValidationErrors.Any())
-            {
-                Respond(context, result.ValidationErrors, HttpStatusCode.Conflict);
-            }
-            else if (!result.IsSuccessful)
-            {
-                var message = "An unhandled exception was raised on the server.  Please try again.  " + result.CorrelationId;
-                Respond(context, message, HttpStatusCode.InternalServerError);
-            }
-            else if (result.Response != null)
-            {
-                if (result.Response is Document)
-                {
-                    Respond(context, (Document)result.Response, HttpStatusCode.OK);
-                }
-                else
-                {
-                    Respond(context, result.Response, HttpStatusCode.OK);
-                }
-            }
-            else
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
-            }
-        }
-
-        private static void Respond(HttpContext context, Document content, HttpStatusCode statusCode)
-        {
-            using (var stream = new MemoryStream(content.Content))
-            {
-                context.Response.ContentType = MimeTypes.GetMimeType(Path.GetExtension(content.Name));
-                context.Response.StatusCode = (int)statusCode;
-                context.Response.ContentLength = content.Content.Length;
-                stream.CopyTo(context.Response.Body);
-            }
-        }
-
-        private static void Respond(HttpContext context, object content, HttpStatusCode statusCode)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content, settings))))
-            {
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)statusCode;
-                context.Response.ContentLength = inner.ToArray().Length;
-                inner.CopyTo(context.Response.Body);
             }
         }
     }

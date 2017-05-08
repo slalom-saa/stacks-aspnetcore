@@ -1,14 +1,14 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Application
 {
     public class SwaggerMiddleware
     {

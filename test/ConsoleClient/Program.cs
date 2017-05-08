@@ -1,98 +1,95 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Slalom.Stacks;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Domain;
 using Slalom.Stacks.Search;
+using Slalom.Stacks.Services.Inventory;
+using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Services.Messaging;
+using Slalom.Stacks.Text;
 using Slalom.Stacks.Validation;
+using EndPoint = Slalom.Stacks.Services.EndPoint;
+using Autofac;
+using Newtonsoft.Json;
 
 namespace ConsoleClient
 {
-
-    public class Product : ISearchResult
+    [Route("gome")]
+    public class A : Controller
     {
-        public bool Crawled { get; set; }
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-    }
-
-
-    public class SearchProductsCommand
-    {
-    }
-
-    [EndPoint("search/products")]
-    public class SearchProducts : EndPoint<SearchProductsCommand, IQueryable<Product>>
-    {
-        public override IQueryable<Product> Receive(SearchProductsCommand instance)
+        [HttpGet]
+        public string Do()
         {
-            return new List<Product> { new Product { Name = "Bread" }, new Product { Name = "Toast" } }.AsQueryable();
+            return "AAA";
         }
     }
 
-    [EndPoint("search/products2")]
-    public class SearchProducts2 : EndPoint<SearchProductsCommand, IQueryable<Product>>
+    public class ProductAdded : Event
     {
-        public override IQueryable<Product> Receive(SearchProductsCommand instance)
-        {
-            return new List<Product> { new Product { Name = "Bread" }, new Product { Name = "Toast" } }.AsQueryable();
-        }
-    }
+        public string Name { get; }
 
-    [EndPoint("products/add")]
-    public class AddProduct : EndPoint<SearchProductsCommand, string>
-    {
-        public override string Receive(SearchProductsCommand instance)
-        {
-            return "Adf";
-        }
-    }
-
-
-    public class HelloWorldRequest
-    {
-        public HelloWorldRequest(string name)
+        public ProductAdded(string name)
         {
             this.Name = name;
         }
-
-        [NotNull("h")]
-        public string Name { get; }
     }
 
-    [EndPoint("api/hello")]
-    public class HelloWorld : EndPoint<HelloWorldRequest>
+
+    [Request("hop")]
+    public class B
     {
-        public override void Receive(HelloWorldRequest instance)
+    }
+
+    public class Hopped : Event
+    {
+    }
+
+    [Subscribe("Hopped")]
+    public class OnHopped : EndPoint<Hopped>
+    {
+        public override void Receive(Hopped instance)
         {
-            //return "Hello " + instance.Name;
+            Console.WriteLine("AAAA");
         }
     }
 
-    public class GetDocumentRequest
+    [EndPoint("sales/fproducts/add", Secure = true)]
+    public class AddProduct : EndPoint
     {
-    }
-
-    [EndPoint("document/get")]
-    public class GetDocument : EndPoint<GetDocumentRequest, Document>
-    {
-        public override Document Receive(GetDocumentRequest instance)
+        public override void Receive()
         {
-            return new Document("name.txt", Encoding.UTF8.GetBytes("content"));
+            this.AddRaisedEvent(new ProductAdded(DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
+            var result = this.Send<string>(new B()).Result;
+
+            //this.Respond(result.Response);
+
+            this.Respond(Request.User.Identity.Name);
         }
     }
 
-    public class Program
+    class Program
     {
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
             using (var stack = new Stack())
             {
-                stack.RunWebHost();
+                stack.RunWebHost(e =>
+                {
+                    e.WithSubscriptions("http://localhost:5000", "http://localhost:5001");
+                });
             }
         }
     }

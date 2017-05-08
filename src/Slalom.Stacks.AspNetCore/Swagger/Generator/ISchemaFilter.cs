@@ -1,8 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     public interface ISchemaFilter
     {
@@ -16,9 +16,9 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             JsonContract jsonContract,
             ISchemaRegistry schemaRegistry)
         {
-            SystemType = systemType;
-            JsonContract = jsonContract;
-            SchemaRegistry = schemaRegistry;
+            this.SystemType = systemType;
+            this.JsonContract = jsonContract;
+            this.SchemaRegistry = schemaRegistry;
         }
 
         public Type SystemType { get; private set; }

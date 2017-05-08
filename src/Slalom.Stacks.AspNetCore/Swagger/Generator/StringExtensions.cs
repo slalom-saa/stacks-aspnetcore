@@ -1,4 +1,4 @@
-﻿namespace Swashbuckle.AspNetCore.SwaggerGen
+﻿namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     internal static class StringExtensions
     {

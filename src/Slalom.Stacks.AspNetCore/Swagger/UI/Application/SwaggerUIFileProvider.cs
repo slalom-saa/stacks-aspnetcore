@@ -1,9 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
-using System.Collections.Generic;
 
-namespace Swashbuckle.AspNetCore.SwaggerUI
+namespace Slalom.Stacks.AspNetCore.Swagger.UI.Application
 {
     public class SwaggerUIFileProvider : IFileProvider
     {
@@ -18,7 +18,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
 
         public SwaggerUIFileProvider(IDictionary<string, string> indexParameters)
         {
-            _thisAssembly = GetType().GetTypeInfo().Assembly;
+            _thisAssembly = this.GetType().GetTypeInfo().Assembly;
             _staticFileProvider = new EmbeddedFileProvider(_thisAssembly, StaticFilesNamespace);
             _indexParameters = indexParameters;
         }

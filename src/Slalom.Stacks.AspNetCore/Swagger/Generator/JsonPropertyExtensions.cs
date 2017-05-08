@@ -1,12 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
-using Slalom.Stacks.Reflection;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger.Generator
 {
     internal static class JsonPropertyExtensions
     {

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using System.Web.OData;
 using System.Web.OData.Query;
 using Newtonsoft.Json.Linq;
 
-namespace Slalom.Stacks.AspNetCore.OData
+namespace Slalom.Stacks.OData.OData
 {
     public class RequestInfo
     {

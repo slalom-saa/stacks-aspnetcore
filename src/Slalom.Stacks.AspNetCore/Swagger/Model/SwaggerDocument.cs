@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Swashbuckle.AspNetCore.Swagger
+namespace Slalom.Stacks.AspNetCore.Swagger.Model
 {
     public class SwaggerDocument
     {
         public SwaggerDocument()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public string Swagger
@@ -51,7 +51,7 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public Info()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public string Version { get; set; }
@@ -90,7 +90,7 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public PathItem()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         [JsonProperty("$ref")]
@@ -120,7 +120,7 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public Operation()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public IList<string> Tags { get; set; }
@@ -155,7 +155,7 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public Tag()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public string Name { get; set; }
@@ -193,8 +193,8 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public BodyParameter()
         {
-            In = "body";
-            Extensions = new Dictionary<string, object>();
+            this.In = "body";
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public string Name { get; set; }
@@ -215,7 +215,7 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public NonBodyParameter()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         public string Name { get; set; }
@@ -234,7 +234,7 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         public Schema()
         {
-            Extensions = new Dictionary<string, object>();
+            this.Extensions = new Dictionary<string, object>();
         }
 
         [JsonProperty("$ref")]

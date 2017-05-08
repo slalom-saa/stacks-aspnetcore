@@ -1,7 +1,7 @@
 ﻿using System;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Builder;
 
-namespace Microsoft.AspNetCore.Builder
+namespace Slalom.Stacks.AspNetCore.Swagger.Application
 {
     public static class SwaggerBuilderExtensions
     {

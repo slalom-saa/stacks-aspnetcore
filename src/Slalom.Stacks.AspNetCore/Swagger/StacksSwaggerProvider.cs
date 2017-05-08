@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.AspNetCore.Swagger.Generator;
+using Slalom.Stacks.AspNetCore.Swagger.Model;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Text;
 using Slalom.Stacks.Validation;
-using Swashbuckle.AspNetCore.Swagger;
 
-namespace Swashbuckle.AspNetCore.SwaggerGen
+namespace Slalom.Stacks.AspNetCore.Swagger
 {
     public class StacksSwaggerProvider : ISwaggerProvider
     {
@@ -55,7 +55,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
                     {
                         responses.Add("204", new Response
                         {
-                            Description = "No content is returned from the endpoint.  A 204 status code is returned when execution completed successfully."
+                            Description = "No content is returned from this endpoint.  A 204 status code is returned when execution completes successfully."
                         });
                     }
                     else

@@ -1,10 +1,10 @@
-﻿namespace Swashbuckle.AspNetCore.Swagger
+﻿namespace Slalom.Stacks.AspNetCore.Swagger.Model
 {
     public class BasicAuthScheme : SecurityScheme
     {
         public BasicAuthScheme()
         {
-            Type = "basic";
+            this.Type = "basic";
         }
     }
 }

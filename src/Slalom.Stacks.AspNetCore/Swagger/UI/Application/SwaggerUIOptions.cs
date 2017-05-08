@@ -1,6 +1,7 @@
 ﻿using System;
+using Slalom.Stacks.AspNetCore.Swagger.UI.Template;
 
-namespace Swashbuckle.AspNetCore.SwaggerUI
+namespace Slalom.Stacks.AspNetCore.Swagger.UI.Application
 {
     public class SwaggerUIOptions
     {
@@ -18,7 +19,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="media">The target media - i.e. the link "media" attribute</param>
         public void InjectStylesheet(string path, string media = "screen")
         {
-            IndexSettings.Stylesheets.Add(new StylesheetDescriptor { Href = path, Media = media });
+            this.IndexSettings.Stylesheets.Add(new StylesheetDescriptor { Href = path, Media = media });
         }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="description">The description that appears in the document selector drop-down</param>
         public void SwaggerEndpoint(string url, string description)
         {
-            IndexSettings.JSConfig.SwaggerEndpoints.Add(new EndpointDescriptor { Url = url, Description = description });
+            this.IndexSettings.JSConfig.SwaggerEndpoints.Add(new EndpointDescriptor { Url = url, Description = description });
         }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="validatorUrl"></param>
         public void EnabledValidator(string validatorUrl = "https://online.swagger.io/validator")
         {
-            IndexSettings.JSConfig.ValidatorUrl = validatorUrl;
+            this.IndexSettings.JSConfig.ValidatorUrl = validatorUrl;
         }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="values"></param>
         public void BooleanValues(object[] values)
         {
-            IndexSettings.JSConfig.BooleanValues = values;
+            this.IndexSettings.JSConfig.BooleanValues = values;
         }
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="value">"none", "list" (default) or "full"</param>
         public void DocExpansion(string value)
         {
-            IndexSettings.JSConfig.DocExpansion = value;
+            this.IndexSettings.JSConfig.DocExpansion = value;
         }
 
         /// <summary>
@@ -64,13 +65,13 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="supportedSubmitMethods"></param>
         public void SupportedSubmitMethods(string[] supportedSubmitMethods)
         {
-            IndexSettings.JSConfig.SupportedSubmitMethods = supportedSubmitMethods;
+            this.IndexSettings.JSConfig.SupportedSubmitMethods = supportedSubmitMethods;
         }
 
         [Obsolete("Will be removed in next version, use InjectOnCompleteJavaScript instead")]
         public void InjectJavaScript(string path)
         {
-            InjectOnCompleteJavaScript(path);
+            this.InjectOnCompleteJavaScript(path);
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="path">A path (fully qualified or relative to the current host) to the script</param>
         public void InjectOnCompleteJavaScript(string path)
         {
-            IndexSettings.JSConfig.OnCompleteScripts.Add(path);
+            this.IndexSettings.JSConfig.OnCompleteScripts.Add(path);
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// <param name="path">A path (fully qualified or relative to the current host) to the script</param>
         public void InjectOnFailureJavaScript(string path)
         {
-            IndexSettings.JSConfig.OnFailureScripts.Add(path);
+            this.IndexSettings.JSConfig.OnFailureScripts.Add(path);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// </summary>
         public void ShowRequestHeaders()
         {
-            IndexSettings.JSConfig.ShowRequestHeaders = true;
+            this.IndexSettings.JSConfig.ShowRequestHeaders = true;
         }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
         /// </summary>
         public void ShowJsonEditor()
         {
-            IndexSettings.JSConfig.JsonEditor = true;
+            this.IndexSettings.JSConfig.JsonEditor = true;
         }
 
         /// <summary>
@@ -124,7 +125,7 @@ namespace Swashbuckle.AspNetCore.SwaggerUI
             string scopeSeparator = " ",
             object additionalQueryStringParameters = null)
         {
-            var jsConfig = IndexSettings.JSConfig;
+            var jsConfig = this.IndexSettings.JSConfig;
             jsConfig.OAuth2ClientId = clientId;
             jsConfig.OAuth2ClientSecret = clientSecret;
             jsConfig.OAuth2Realm = realm;
