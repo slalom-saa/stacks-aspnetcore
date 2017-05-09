@@ -30,17 +30,16 @@ namespace ConsoleClient
     {
         private static void Main(string[] args)
         {
-            var root = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .AddEnvironmentVariables()
-                .Build();
-
-            var sub = root.GetSection("Stacks:Subscriptions").Get<SubscriptionOptions>();
-
-            using (var stack = new Stack())
+            try
             {
-                stack.RunWebHost();
+                using (var stack = new Stack())
+                {
+                    stack.RunWebHost();
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
             }
         }
     }

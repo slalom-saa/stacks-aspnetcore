@@ -29,6 +29,10 @@ namespace Slalom.Stacks.AspNetCore.Messaging
     {
         public Startup(IHostingEnvironment env)
         {
+            Stack.Use(e =>
+            {
+                e.Register(c => env).As<IHostingEnvironment>().SingleInstance();
+            });
         }
 
         public static AspNetCoreOptions Options { get; set; }

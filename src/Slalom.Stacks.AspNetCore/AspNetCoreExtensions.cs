@@ -62,6 +62,9 @@ namespace Slalom.Stacks.AspNetCore
             stack.Use(e =>
             {
                 e.Register(c => root).As<IConfigurationRoot>();
+                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
+                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
+                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
             });
 
             var options = new AspNetCoreOptions();
@@ -81,12 +84,7 @@ namespace Slalom.Stacks.AspNetCore
                 builder.UseUrls(options.Urls);
             }
 
-            stack.Use(e =>
-            {
-                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
-                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
-                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
-            });
+            var host = builder.Build();
 
             var subscriptions = root.GetSection("Stacks:Subscriptions").Get<SubscriptionOptions>();
             if (subscriptions.Remote.Any())
@@ -94,7 +92,7 @@ namespace Slalom.Stacks.AspNetCore
                 Task.Run(() => Subscribe(subscriptions));
             }
 
-            builder.Build().Run();
+            host.Run();
 
             return stack;
         }
@@ -112,7 +110,7 @@ namespace Slalom.Stacks.AspNetCore
 
         private static async Task Subscribe(SubscriptionOptions options)
         {
-            var target = Startup.Stack.Container.Resolve<RemoteEndPointInventory>();
+            var target = Startup.Stack.Container.Resolve<RemoteServiceInventory>();
             using (var client = new HttpClient())
             {
                 while (true)
@@ -137,8 +135,8 @@ namespace Slalom.Stacks.AspNetCore
                             if (result.StatusCode == HttpStatusCode.OK)
                             {
                                 var content = result.Content.ReadAsStringAsync().Result;
-                                var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
-                                target.AddEndPoints(endPoints);
+                                var endPoints = JsonConvert.DeserializeObject<RemoteService>(content);
+                                target.Add(endPoints);
                             }
                         }
                         catch (Exception exception)

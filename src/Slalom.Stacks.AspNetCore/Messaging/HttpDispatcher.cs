@@ -19,9 +19,9 @@ namespace Slalom.Stacks.AspNetCore.Messaging
     public class HttpDispatcher : IRemoteMessageDispatcher
     {
         private readonly IHttpContextAccessor _context;
-        private readonly RemoteEndPointInventory _endPoints;
+        private readonly RemoteServiceInventory _endPoints;
 
-        public HttpDispatcher(IHttpContextAccessor context, RemoteEndPointInventory endPoints)
+        public HttpDispatcher(IHttpContextAccessor context, RemoteServiceInventory endPoints)
         {
             _context = context;
             _endPoints = endPoints;
