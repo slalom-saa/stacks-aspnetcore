@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -35,7 +36,7 @@ namespace Slalom.Stacks.AspNetCore
             {
                 OnRedirectToLogin = a =>
                 {
-                    a.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                    a.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     return Task.FromResult(0);
                 },
                 OnValidatePrincipal = async a =>
@@ -64,12 +65,13 @@ namespace Slalom.Stacks.AspNetCore
                 .AllowCredentials();
         };
 
-        internal string Subscriber { get; set; }
-
-        internal string[] SubscriptionUrls { get; set; } = new string[0];
-
         internal string[] Urls { get; set; }
 
+        /// <summary>
+        /// Sets the Cookie configuration to use.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>This instance for method chaining.</returns>
         public AspNetCoreOptions WithCookieAuthentication(CookieAuthenticationOptions options)
         {
             this.CookieOptions = options;
@@ -77,6 +79,11 @@ namespace Slalom.Stacks.AspNetCore
             return this;
         }
 
+        /// <summary>
+        /// Sets the CORS configuration.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>This instance for method chaining.</returns>
         public AspNetCoreOptions WithCors(Action<CorsPolicyBuilder> options)
         {
             this.CorsOptions = options;
@@ -85,22 +92,7 @@ namespace Slalom.Stacks.AspNetCore
         }
 
         /// <summary>
-        /// Creates subscriptions at the specified URLs.
-        /// </summary>
-        /// <param name="subscriber">The subsciber URL to call, not including path.</param>
-        /// <param name="urls">The urls to subscribe to.</param>
-        /// <returns>This instance for method chaining.</returns>
-        public AspNetCoreOptions WithSubscriptions(string subscriber, params string[] urls)
-        {
-            this.Subscriber = subscriber;
-            this.SubscriptionUrls = urls;
-
-            return this;
-        }
-
-
-        /// <summary>
-        /// Sets the URLs to use with hosting.
+        /// Sets the URLs to use with local hosting.
         /// </summary>
         /// <param name="urls">The urls to use.</param>
         /// <returns>This instance for method chaining.</returns>

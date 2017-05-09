@@ -7,7 +7,7 @@
 
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore.Events.EndPoints
+namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
 {
     /// <summary>
     /// Request to publish events using the provided JSON text.

@@ -16,15 +16,24 @@ using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.AspNetCore.Swagger;
+using Slalom.Stacks.Logging;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore
 {
+    public class SubscriptionOptions
+    {
+        public string Local { get; set; }
+
+        public string[] Remote { get; set; }
+    }
+
     /// <summary>
     /// Extension methods for configuration AspNetCore blocks.
     /// </summary>
@@ -40,15 +49,30 @@ namespace Slalom.Stacks.AspNetCore
         /// <summary>
         /// Starts and runs an API to access the stack.
         /// </summary>
-        /// <param name="stack">The this instance.</param>
+        /// <param name="stack">The this instance.</param>  
         /// <param name="configuration">The configuration routine.</param>
         public static Stack RunWebHost(this Stack stack, Action<AspNetCoreOptions> configuration = null)
         {
+            var root = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", true, true)
+                    .AddEnvironmentVariables()
+                    .Build();
+
+            stack.Use(e =>
+            {
+                e.Register(c => root).As<IConfigurationRoot>();
+                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
+                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
+                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
+            });
+
             var options = new AspNetCoreOptions();
             configuration?.Invoke(options);
 
             Startup.Stack = stack;
             Startup.Options = options;
+
             var builder = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
@@ -60,17 +84,15 @@ namespace Slalom.Stacks.AspNetCore
                 builder.UseUrls(options.Urls);
             }
 
+            var host = builder.Build();
 
-            stack.Use(e =>
+            var subscriptions = root.GetSection("Stacks:Subscriptions").Get<SubscriptionOptions>();
+            if (subscriptions.Remote.Any())
             {
-                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
-                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
-                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
-            });
+                Task.Run(() => Subscribe(subscriptions));
+            }
 
-            Task.Run(() => Subscribe(options));
-
-            builder.Build().Run();
+            host.Run();
 
             return stack;
         }
@@ -86,45 +108,45 @@ namespace Slalom.Stacks.AspNetCore
             return app.UseMiddleware<StacksMiddleware>(stack);
         }
 
-        private static async Task Subscribe(AspNetCoreOptions options)
+        private static async Task Subscribe(SubscriptionOptions options)
         {
-            if ((options.SubscriptionUrls?.Any() ?? false) && !string.IsNullOrWhiteSpace(options.Subscriber))
+            var target = Startup.Stack.Container.Resolve<RemoteServiceInventory>();
+            using (var client = new HttpClient())
             {
-                var target = Startup.Stack.Container.Resolve<RemoteEndPointInventory>();
-                using (var client = new HttpClient())
+                while (true)
                 {
-                    while (true)
+                    foreach (var url in options.Remote)
                     {
-                        foreach (var url in options.SubscriptionUrls)
+                        try
                         {
-                            try
+                            var message = new StringContent(JsonConvert.SerializeObject(new
                             {
-                                var message = new StringContent(JsonConvert.SerializeObject(new
-                                {
-                                    url = options.Subscriber
-                                }), Encoding.UTF8, "application/json");
-                                await client.PostAsync(url + "/_system/events/subscribe", message);
-                            }
-                            catch
+                                url = options.Local
+                            }), Encoding.UTF8, "application/json");
+                            await client.PostAsync(url + "/_system/events/subscribe", message);
+                        }
+                        catch (Exception exception)
+                        {
+                            Startup.Stack.Logger.Warning(exception, $"Failed to subscribe to {url}");
+                        }
+                        try
+                        {
+                            var result = await client.GetAsync(url + "/_system/endpoints");
+                            if (result.StatusCode == HttpStatusCode.OK)
                             {
-                            }
-                            try
-                            {
-                                var result = await client.GetAsync(url + "/_system/endpoints");
-                                if (result.StatusCode == HttpStatusCode.OK)
-                                {
-                                    var content = result.Content.ReadAsStringAsync().Result;
-                                    var endPoints = JsonConvert.DeserializeObject<RemoteEndPoint[]>(content);
-                                    target.AddEndPoints(endPoints);
-                                }
-                            }
-                            catch
-                            {
+                                var content = result.Content.ReadAsStringAsync().Result;
+                                var endPoints = JsonConvert.DeserializeObject<RemoteService>(content);
+                                target.Add(endPoints);
                             }
                         }
-                        await Task.Delay(5000);
+                        catch (Exception exception)
+                        {
+                            Startup.Stack.Logger.Warning(exception, $"Failed to get remote endpoints at {url}");
+                        }
                     }
+                    await Task.Delay(5000);
                 }
+
             }
         }
     }

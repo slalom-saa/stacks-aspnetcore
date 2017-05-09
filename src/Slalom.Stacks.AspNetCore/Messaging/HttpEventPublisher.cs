@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.AspNetCore.Events
+namespace Slalom.Stacks.AspNetCore.Messaging
 {
     /// <summary>
     /// An HTTP based <see cref="IEventPublisher" />.

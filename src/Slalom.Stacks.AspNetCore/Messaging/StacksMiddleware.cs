@@ -5,6 +5,11 @@
  * the LICENSE file, which is part of this source code package.
  */
 
+
+// TODO: Fix setting header issue
+// TODO: Swagger from relative URLs
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,12 +17,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.AspNetCore.Messaging
 {
     public class StacksMiddleware
     {
@@ -41,17 +46,42 @@ namespace Slalom.Stacks.AspNetCore
             var endPoint = _stack.GetEndPoint(context.Request);
             if (endPoint != null)
             {
-                using (var stream = new MemoryStream())
+                try
                 {
-                    context.Request.Body.CopyTo(stream);
-
-                    var content = Encoding.UTF8.GetString(stream.ToArray());
-                    if (string.IsNullOrWhiteSpace(content))
+                    if (context.Request.Method == "GET")
                     {
-                        content = null;
+                        var content = new JObject();
+                        foreach (var item in context.Request.Query)
+                        {
+                            content.Add(item.Key, item.Value.ToString());
+                        }
+                        var result = await _stack.Send(endPoint.Path, content.ToString());
+                        HandleResult(result, context);
                     }
-                    var result = await _stack.Send(endPoint.Path, content);
-                    HandleResult(result, context);
+                    else if (context.Request.Method == "POST")
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            context.Request.Body.CopyTo(stream);
+
+                            var content = Encoding.UTF8.GetString(stream.ToArray());
+                            if (string.IsNullOrWhiteSpace(content))
+                            {
+                                content = null;
+                            }
+                            var result = await _stack.Send(endPoint.Path, content);
+                            HandleResult(result, context);
+                        }
+                    }
+                    else
+                    {
+                        await _next(context);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _stack.Logger.Error(exception, "Failed to execute endpoint in the Stacks middleware.");
+                    throw;
                 }
             }
             else

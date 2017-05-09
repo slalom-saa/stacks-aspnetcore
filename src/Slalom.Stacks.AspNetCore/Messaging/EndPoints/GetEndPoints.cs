@@ -36,8 +36,13 @@ namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
         public override void Receive()
         {
             var url = this.GetBaseUrl();
-            this.Respond(_services.EndPoints.Where(e => e.Public && !string.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_"))
-                .Select(e => new RemoteEndPoint(e.Path, url + "/" + e.Path)));
+            var endPoints = _services.EndPoints.Where(e => e.Public && !string.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_"));
+
+            this.Respond(new RemoteService
+            {
+                Path = _context.HttpContext.Request.Scheme + "://" + _context.HttpContext.Request.Host,
+                EndPoints = endPoints.Select(e => new RemoteEndPoint(e.Path, url + "/" + e.Path)).ToList()
+            });
         }
 
         private string GetBaseUrl()
