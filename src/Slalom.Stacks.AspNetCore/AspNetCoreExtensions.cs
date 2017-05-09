@@ -87,7 +87,7 @@ namespace Slalom.Stacks.AspNetCore
             var host = builder.Build();
 
             var subscriptions = root.GetSection("Stacks:Subscriptions").Get<SubscriptionOptions>();
-            if (subscriptions.Remote.Any())
+            if (subscriptions != null && subscriptions.Remote.Any())
             {
                 Task.Run(() => Subscribe(subscriptions));
             }
