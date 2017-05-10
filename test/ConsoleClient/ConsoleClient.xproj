@@ -18,7 +18,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.targets" Condition="'$(VSToolsPath)' != ''" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties appsettings_1json__JSONSchema="..\..\src\Slalom.Stacks.AspNetCore\schema.json" />
+      <UserProperties appsettings_1json__JSONSchema="https://github.com/slalom-saa/stacks-aspnetcore/raw/develop/src/Slalom.Stacks.AspNetCore/schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
