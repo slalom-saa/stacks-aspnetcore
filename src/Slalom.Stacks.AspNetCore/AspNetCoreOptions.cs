@@ -8,6 +8,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -68,8 +69,50 @@ namespace Slalom.Stacks.AspNetCore
             return this;
         }
 
+        internal class CookieDataProtector : IDataProtector
+        {
+            private readonly string _salt;
+
+            public CookieDataProtector(string salt)
+            {
+                _salt = salt;
+            }
+
+            public IDataProtector CreateProtector(string purpose)
+            {
+                return new CookieDataProtector(_salt);
+            }
+
+            public byte[] Protect(byte[] plaintext)
+            {
+                return Security.Encryption.Encrypt(plaintext, _salt);
+            }
+
+            public byte[] Unprotect(byte[] protectedData)
+            {
+                return Security.Encryption.Decrypt(protectedData, _salt);
+            }
+        }
+
+        internal class CookieDataProtectionProvider : IDataProtectionProvider
+        {
+            private readonly string _key;
+
+            public CookieDataProtectionProvider(string key)
+            {
+                _key = key;
+            }
+
+            public IDataProtector CreateProtector(string purpose)
+            {
+                return new CookieDataProtector(_key);
+            }
+        }
+
         internal CookieAuthenticationOptions GetCookieAuthenticationOptions()
         {
+            
+
             return new CookieAuthenticationOptions
             {
                 AuthenticationScheme = this.CookieAuthentication.AuthenticationScheme,
@@ -78,7 +121,7 @@ namespace Slalom.Stacks.AspNetCore
                 AutomaticChallenge = true,
                 SlidingExpiration = true,
                 ExpireTimeSpan = TimeSpan.FromSeconds(1),
-                DataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo(this.CookieAuthentication.DataProtectionProviderPath)),
+                DataProtectionProvider = new CookieDataProtectionProvider("Stacks"),
                 Events = new CookieAuthenticationEvents
                 {
                     OnRedirectToLogin = a =>
@@ -142,7 +185,7 @@ namespace Slalom.Stacks.AspNetCore
             /// Gets or sets the remote URLs to subscribe to.
             /// </summary>
             /// <value>The remote URLs to subscribe to.</value>
-            public string[] Remote { get; set; }
+            public string[] Remote { get; set; } = new string[0];
         }
     }
 }

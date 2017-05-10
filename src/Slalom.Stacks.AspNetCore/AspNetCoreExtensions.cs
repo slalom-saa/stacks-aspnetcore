@@ -94,7 +94,7 @@ namespace Slalom.Stacks.AspNetCore
             return app.UseMiddleware<StacksMiddleware>(stack);
         }
 
-        private static async Task Subscribe(SubscriptionSettings options)
+        private static async Task Subscribe(AspNetCoreOptions.SubscriptionSettings options)
         {
             var target = Startup.Stack.Container.Resolve<RemoteServiceInventory>();
             using (var client = new HttpClient())
