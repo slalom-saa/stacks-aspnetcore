@@ -27,13 +27,6 @@ using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore
 {
-    public class SubscriptionOptions
-    {
-        public string Local { get; set; }
-
-        public string[] Remote { get; set; }
-    }
-
     /// <summary>
     /// Extension methods for configuration AspNetCore blocks.
     /// </summary>
@@ -53,15 +46,8 @@ namespace Slalom.Stacks.AspNetCore
         /// <param name="configuration">The configuration routine.</param>
         public static Stack RunWebHost(this Stack stack, Action<AspNetCoreOptions> configuration = null)
         {
-            var root = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", true, true)
-                    .AddEnvironmentVariables()
-                    .Build();
-
             stack.Use(e =>
             {
-                e.Register(c => root).As<IConfigurationRoot>();
                 e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
                 e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
                 e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
@@ -69,6 +55,7 @@ namespace Slalom.Stacks.AspNetCore
 
             var options = new AspNetCoreOptions();
             configuration?.Invoke(options);
+            stack.Configuration.GetSection("Stacks:AspNetCore").Bind(options);
 
             Startup.Stack = stack;
             Startup.Options = options;
@@ -86,10 +73,9 @@ namespace Slalom.Stacks.AspNetCore
 
             var host = builder.Build();
 
-            var subscriptions = root.GetSection("Stacks:Subscriptions").Get<SubscriptionOptions>();
-            if (subscriptions != null && subscriptions.Remote.Any())
+            if (options.Subscriptions != null && options.Subscriptions.Remote.Any())
             {
-                Task.Run(() => Subscribe(subscriptions));
+                Task.Run(() => Subscribe(options.Subscriptions));   
             }
 
             host.Run();
@@ -108,7 +94,7 @@ namespace Slalom.Stacks.AspNetCore
             return app.UseMiddleware<StacksMiddleware>(stack);
         }
 
-        private static async Task Subscribe(SubscriptionOptions options)
+        private static async Task Subscribe(SubscriptionSettings options)
         {
             var target = Startup.Stack.Container.Resolve<RemoteServiceInventory>();
             using (var client = new HttpClient())

@@ -43,7 +43,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
         {
             app.UseCors(Options.CorsOptions);
 
-            app.UseCookieAuthentication(Options.CookieOptions);
+            app.UseCookieAuthentication(Options.GetCookieAuthenticationOptions());
 
             app.UseMvc();
 
@@ -80,7 +80,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
 
             var defaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes("Cookies")
+                .AddAuthenticationSchemes(Options.CookieAuthentication.AuthenticationScheme)
                 .Build();
 
             var mvc = services.AddMvc(setup => { setup.Filters.Add(new AuthorizeFilter(defaultPolicy)); })

@@ -1,0 +1,83 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "additionalProperties": true,
+  "definitions": {},
+  "id": "http://example.com/example.json",
+  "properties": {
+    "Stacks": {
+      "additionalProperties": true,
+      "id": "/properties/Stacks",
+      "properties": {
+        "AspNetCore": {
+          "additionalProperties": true,
+          "id": "/properties/Stacks/properties/AspNetCore",
+          "properties": {
+            "CookieAuthentication": {
+              "additionalProperties": true,
+              "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication",
+              "properties": {
+                "AuthenticationScheme": {
+                  "default": "Cookies",
+                  "description": "The name of the authentication scheme.",
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication/properties/AuthenticationScheme",
+                  "title": "Authentication Scheme",
+                  "type": "string"
+                },
+                "CookieName": {
+                  "default": ".AspNetCore.Cookies",
+                  "description": "The authentication cookie name.",
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication/properties/CookieName",
+                  "title": "Cookie Name",
+                  "type": "string"
+                },
+                "DataProtectionProviderPath": {
+                  "default": "C:\\keys",
+                  "description": "A path shared between services that is used to read and write keys.",
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication/properties/DataProtectionProviderPath",
+                  "title": "Data Protection Provider Path",
+                  "type": "string"
+                },
+                "ExpireTimeSpan": {
+                  "default": "00:15:00",
+                  "description": "The sliding expiration of the cookie.",
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication/properties/ExpireTimeSpan",
+                  "title": "Expiration",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "Subscriptions": {
+              "additionalProperties": true,
+              "id": "/properties/Stacks/properties/AspNetCore/properties/Subscriptions",
+              "properties": {
+                "Local": {
+                  "description": "The local URL of the service that will be called on publish.",
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/Subscriptions/properties/Local",
+                  "title": "Local URL",
+                  "type": "string"
+                },
+                "Remote": {
+                  "additionalItems": true,
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/Subscriptions/properties/Remote",
+                  "items": {
+                    "description": "The remote URLs to subscribe to.",
+                    "id": "/properties/Stacks/properties/AspNetCore/properties/Subscriptions/properties/Remote/items",
+                    "title": "Remote URL",
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "uniqueItems": false
+                }
+              },
+              "type": "object"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Text;
 
 namespace ConsoleClient
 {
