@@ -9,6 +9,7 @@ using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Security;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Text;
+using Slalom.Stacks.Validation;
 
 namespace ConsoleClient
 {
@@ -20,6 +21,7 @@ namespace ConsoleClient
             this.Name = name;
         }
 
+        [NotNull("go")]
         public string Name { get; }
     }
 
@@ -28,8 +30,6 @@ namespace ConsoleClient
     {
         public override string Receive(AddRequest instance)
         {
-            Console.WriteLine(instance.Name);
-
             return this.Request.User.Identity.Name;
         }
     }

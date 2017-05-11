@@ -30,11 +30,11 @@
                   "title": "Cookie Name",
                   "type": "string"
                 },
-                "DataProtectionProviderPath": {
-                  "default": "C:\\keys",
-                  "description": "A path shared between services that is used to read and write keys.",
-                  "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication/properties/DataProtectionProviderPath",
-                  "title": "Data Protection Provider Path",
+                "DataProtectionKey": {
+                  "default": "Stacks",
+                  "description": "A key that is used to encrypt the cookie",
+                  "id": "/properties/Stacks/properties/AspNetCore/properties/CookieAuthentication/properties/DataProtectionKey",
+                  "title": "Data Protectin Key",
                   "type": "string"
                 },
                 "ExpireTimeSpan": {
