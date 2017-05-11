@@ -92,6 +92,10 @@ namespace Slalom.Stacks.AspNetCore
                         {
                             await a.HttpContext.Authentication.SignOutAsync(this.CookieAuthentication.AuthenticationScheme);
                         }
+                        else
+                        {
+                            a.ShouldRenew = true;
+                        }
                     }
                 }
             };
