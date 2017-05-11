@@ -97,7 +97,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             {
                 Respond(context, result.ValidationErrors, HttpStatusCode.BadRequest);
             }
-            if (result.ValidationErrors.Any(e => e.Type == ValidationType.Security))
+            else if (result.ValidationErrors.Any(e => e.Type == ValidationType.Security))
             {
                 Respond(context, result.ValidationErrors, HttpStatusCode.Unauthorized);
             }

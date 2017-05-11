@@ -6,14 +6,13 @@
  */
 
 using System;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
+using Slalom.Stacks.Security;
 
 namespace Slalom.Stacks.AspNetCore
 {
@@ -69,50 +68,8 @@ namespace Slalom.Stacks.AspNetCore
             return this;
         }
 
-        internal class CookieDataProtector : IDataProtector
-        {
-            private readonly string _salt;
-
-            public CookieDataProtector(string salt)
-            {
-                _salt = salt;
-            }
-
-            public IDataProtector CreateProtector(string purpose)
-            {
-                return new CookieDataProtector(_salt);
-            }
-
-            public byte[] Protect(byte[] plaintext)
-            {
-                return Security.Encryption.Encrypt(plaintext, _salt);
-            }
-
-            public byte[] Unprotect(byte[] protectedData)
-            {
-                return Security.Encryption.Decrypt(protectedData, _salt);
-            }
-        }
-
-        internal class CookieDataProtectionProvider : IDataProtectionProvider
-        {
-            private readonly string _key;
-
-            public CookieDataProtectionProvider(string key)
-            {
-                _key = key;
-            }
-
-            public IDataProtector CreateProtector(string purpose)
-            {
-                return new CookieDataProtector(_key);
-            }
-        }
-
         internal CookieAuthenticationOptions GetCookieAuthenticationOptions()
         {
-            
-
             return new CookieAuthenticationOptions
             {
                 AuthenticationScheme = this.CookieAuthentication.AuthenticationScheme,
@@ -121,7 +78,7 @@ namespace Slalom.Stacks.AspNetCore
                 AutomaticChallenge = true,
                 SlidingExpiration = true,
                 ExpireTimeSpan = TimeSpan.FromSeconds(1),
-                DataProtectionProvider = new CookieDataProtectionProvider("Stacks"),
+                DataProtectionProvider = new CookieDataProtectionProvider(this.CookieAuthentication.DataProtectionKey),
                 Events = new CookieAuthenticationEvents
                 {
                     OnRedirectToLogin = a =>
@@ -138,6 +95,46 @@ namespace Slalom.Stacks.AspNetCore
                     }
                 }
             };
+        }
+
+        internal class CookieDataProtector : IDataProtector
+        {
+            private readonly string _salt;
+
+            public CookieDataProtector(string salt)
+            {
+                _salt = salt;
+            }
+
+            public IDataProtector CreateProtector(string purpose)
+            {
+                return new CookieDataProtector(_salt);
+            }
+
+            public byte[] Protect(byte[] plaintext)
+            {
+                return Encryption.Encrypt(plaintext, _salt);
+            }
+
+            public byte[] Unprotect(byte[] protectedData)
+            {
+                return Encryption.Decrypt(protectedData, _salt);
+            }
+        }
+
+        internal class CookieDataProtectionProvider : IDataProtectionProvider
+        {
+            private readonly string _key;
+
+            public CookieDataProtectionProvider(string key)
+            {
+                _key = key;
+            }
+
+            public IDataProtector CreateProtector(string purpose)
+            {
+                return new CookieDataProtector(_key);
+            }
         }
 
         /// <summary>
@@ -158,10 +155,10 @@ namespace Slalom.Stacks.AspNetCore
             public string CookieName { get; set; } = ".AspNetCore.Cookies";
 
             /// <summary>
-            /// Gets or sets the data protection provider path.
+            /// Gets or sets the data protection key that is used to encrypt the cookie.
             /// </summary>
-            /// <value>The data protection provider path.</value>
-            public string DataProtectionProviderPath { get; set; } = @"c:\keys\";
+            /// <value>The data protection key that is used to encrypt the cookie.</value>
+            public string DataProtectionKey { get; set; } = @"Stacks";
 
             /// <summary>
             /// Gets or sets the expire time span.
