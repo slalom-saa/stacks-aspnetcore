@@ -50,13 +50,21 @@ namespace Slalom.Stacks.AspNetCore.Messaging
                 {
                     if (context.Request.Method == "GET")
                     {
-                        var content = new JObject();
-                        foreach (var item in context.Request.Query)
+                        if (context.Request.Query.Any())
                         {
-                            content.Add(item.Key, item.Value.ToString());
+                            var content = new JObject();
+                            foreach (var item in context.Request.Query)
+                            {
+                                content.Add(item.Key, item.Value.ToString());
+                            }
+                            var result = await _stack.Send(endPoint.Path, content.ToString());
+                            HandleResult(result, context);
                         }
-                        var result = await _stack.Send(endPoint.Path, content.ToString());
-                        HandleResult(result, context);
+                        else
+                        {
+                            var result = await _stack.Send(endPoint.Path, null);
+                            HandleResult(result, context);
+                        }
                     }
                     else if (context.Request.Method == "POST")
                     {
