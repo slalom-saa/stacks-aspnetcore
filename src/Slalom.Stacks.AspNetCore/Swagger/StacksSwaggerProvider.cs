@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -22,6 +24,32 @@ namespace Slalom.Stacks.AspNetCore.Swagger
         public StacksSwaggerProvider(ServiceInventory services, IOptions<MvcJsonOptions> options)
         {
             _services = services;
+        }
+
+        private static string GetFriendlyName(string name)
+        {
+            var type = Type.GetType(name, false);
+
+            if (type == typeof(int))
+                return "int";
+            else if (type == typeof(short))
+                return "short";
+            else if (type == typeof(byte))
+                return "byte";
+            else if (type == typeof(bool))
+                return "bool";
+            else if (type == typeof(long))
+                return "long";
+            else if (type == typeof(float))
+                return "float";
+            else if (type == typeof(double))
+                return "double";
+            else if (type == typeof(decimal))
+                return "decimal";
+            else if (type == typeof(string))
+                return "string";
+
+            return name;
         }
 
         public SwaggerDocument GetSwagger(string documentName, string host = null, string basePath = null, string[] schemes = null)
@@ -48,76 +76,18 @@ namespace Slalom.Stacks.AspNetCore.Swagger
 
                     var parameters = new List<IParameter>();
                     parameters.Add(new BodyParameter { Name = "input", Schema = schema });
+                    foreach (var property in endPoint.RequestProperties)
+                    {
+                        //parameters.Add(new NonBodyParameter { Name = property.Name, Description = property.Comments?.Value, Type = GetFriendlyName(property.Type) });
+                    }
+
+                    var responses = GetResponses(endPoint, registry);
 
                     var paths = endPoint.Path.Split('/');
-                    var responses = new Dictionary<string, Response>();
-                    if (endPoint.ResponseType == null)
-                    {
-                        responses.Add("204", new Response
-                        {
-                            Description = "No content is returned from this endpoint.  A 204 status code is returned when execution completes successfully."
-                        });
-                    }
-                    else
-                    {
-                        var responseType = endPoint.ResponseType;
-                        var responseSchema = registry.GetOrRegister(responseType);
-                        responses.Add("200", new Response
-                        {
-                            Description = responseType.GetComments()?.Summary,
-                            Schema = responseSchema
-                        });
-                    }
-                    var builder = new StringBuilder();
-                    foreach (var property in endPoint.RequestProperties.Where(e => e.Validation != null))
-                    {
-                        builder.AppendLine(property.Validation + "    ");
-                    }
-                    foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Input))
-                    {
-                        builder.AppendLine(source.Name.ToTitleCase() + ".    ");
-                    }
-                    if (builder.Length > 0)
-                    {
-                        responses.Add("400", new Response
-                        {
-                            Schema = registry.GetOrRegister(typeof(ValidationError)),
-                            //Examples = new List<ValidationError> { new ValidationError("adsf") },
-                            Description = builder.ToString()
-                        });
-                    }
-                    builder.Clear();
-                    foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Business))
-                    {
-                        builder.AppendLine(source.Name.ToTitleCase() + ".    ");
-                    }
-                    if (builder.Length > 0)
-                    {
-                        responses.Add("409", new Response
-                        {
-                            Schema = registry.GetOrRegister(typeof(ValidationError)),
-                            //Examples = new List<ValidationError> {new ValidationError("adsf")},
-                            Description = builder.ToString()
-                        });
-                    }
-                    builder.Clear();
-                    foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Security))
-                    {
-                        builder.AppendLine(source.Name.ToTitleCase() + ".    ");
-                    }
-                    if (builder.Length > 0)
-                    {
-                        responses.Add("403", new Response
-                        {
-                            Schema = registry.GetOrRegister(typeof(ValidationError)),
-                            //Examples = new List<ValidationError> {new ValidationError("adsf")},
-                            Description = builder.ToString()
-                        });
-                    }
                     var operation = new Operation
                     {
                         Tags = new[] { paths.Take(Math.Max(1, paths.Count() - 1)).Last().ToTitleCase() },
-                        OperationId = endPoint.RequestType.Name.Split(',')[0].Split('.').Last().Replace("Command", "").ToDelimited("-"),
+                        OperationId = endPoint.RequestType.Name.Split(',')[0].Split('.').Last().Replace("Request", "").ToDelimited("-"),
                         Consumes = new[] { "application/json" },
                         Produces = new[] { "application/json" },
                         Parameters = parameters,
@@ -127,7 +97,8 @@ namespace Slalom.Stacks.AspNetCore.Swagger
 
                     var pathItem = new PathItem
                     {
-                        Post = operation
+                        Post = operation,
+                        //Get = operation
                     };
 
                     var path = "/" + string.Join("/", endPoint.Path.Split('/').Skip(1));
@@ -153,6 +124,72 @@ namespace Slalom.Stacks.AspNetCore.Swagger
                 //SecurityDefinitions = _settings.SecurityDefinitions
             };
             return swaggerDoc;
+        }
+
+        private static Dictionary<string, Response> GetResponses(EndPointMetaData endPoint, SchemaRegistry registry)
+        {
+            var responses = new Dictionary<string, Response>();
+            if (endPoint.ResponseType == null)
+            {
+                responses.Add("204", new Response
+                {
+                    Description = "No content is returned from this endpoint.  A 204 status code is returned when execution completes successfully."
+                });
+            }
+            else
+            {
+                var responseType = endPoint.ResponseType;
+                var responseSchema = registry.GetOrRegister(responseType);
+                responses.Add("200", new Response
+                {
+                    Description = responseType.GetComments()?.Summary,
+                    Schema = responseSchema
+                });
+            }
+            var builder = new StringBuilder();
+            foreach (var property in endPoint.RequestProperties.Where(e => e.Validation != null))
+            {
+                builder.AppendLine(property.Validation + "    ");
+            }
+            foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Input))
+            {
+                builder.AppendLine(source.Name.ToTitleCase() + ".    ");
+            }
+            if (builder.Length > 0)
+            {
+                responses.Add("400", new Response
+                {
+                    Schema = registry.GetOrRegister(typeof(ValidationError)),
+                    Description = builder.ToString()
+                });
+            }
+            builder.Clear();
+            foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Business))
+            {
+                builder.AppendLine(source.Name.ToTitleCase() + ".    ");
+            }
+            if (builder.Length > 0)
+            {
+                responses.Add("409", new Response
+                {
+                    Schema = registry.GetOrRegister(typeof(ValidationError)),
+                    Description = builder.ToString()
+                });
+            }
+            builder.Clear();
+            foreach (var source in endPoint.Rules.Where(e => e.RuleType == ValidationType.Security))
+            {
+                builder.AppendLine(source.Name.ToTitleCase() + ".    ");
+            }
+            if (builder.Length > 0)
+            {
+                responses.Add("403", new Response
+                {
+                    Schema = registry.GetOrRegister(typeof(ValidationError)),
+                    Description = builder.ToString()
+                });
+            }
+            return responses;
         }
     }
 }

@@ -20,7 +20,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.AspNetCore.Swagger;
-using Slalom.Stacks.Logging;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
@@ -32,6 +31,12 @@ namespace Slalom.Stacks.AspNetCore
     /// </summary>
     public static class AspNetCoreExtensions
     {
+        /// <summary>
+        /// Gets an endpoint from the request.
+        /// </summary>
+        /// <param name="stack">The stack.</param>
+        /// <param name="request">The current request.</param>
+        /// <returns>Returns an endpoint from the request.</returns>
         internal static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
         {
             var path = request.Path.Value.Trim('/');
@@ -42,7 +47,7 @@ namespace Slalom.Stacks.AspNetCore
         /// <summary>
         /// Starts and runs an API to access the stack.
         /// </summary>
-        /// <param name="stack">The this instance.</param>  
+        /// <param name="stack">The this instance.</param>
         /// <param name="configuration">The configuration routine.</param>
         public static Stack RunWebHost(this Stack stack, Action<AspNetCoreOptions> configuration = null)
         {
@@ -75,7 +80,7 @@ namespace Slalom.Stacks.AspNetCore
 
             if (options.Subscriptions != null && options.Subscriptions.Remote.Any())
             {
-                Task.Run(() => Subscribe(options.Subscriptions));   
+                Task.Run(() => Subscribe(options.Subscriptions));
             }
 
             host.Run();
@@ -114,6 +119,8 @@ namespace Slalom.Stacks.AspNetCore
                         catch (Exception exception)
                         {
                             Startup.Stack.Logger.Warning(exception, $"Failed to subscribe to {url}");
+                            await Task.Delay(5000);
+                            continue;
                         }
                         try
                         {
@@ -128,11 +135,13 @@ namespace Slalom.Stacks.AspNetCore
                         catch (Exception exception)
                         {
                             Startup.Stack.Logger.Warning(exception, $"Failed to get remote endpoints at {url}");
+                            await Task.Delay(5000);
+                            continue;
                         }
+                        await Task.Delay(TimeSpan.FromMinutes(15));
                     }
-                    await Task.Delay(5000);
+                   
                 }
-
             }
         }
     }

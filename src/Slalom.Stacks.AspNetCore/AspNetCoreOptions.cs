@@ -168,7 +168,7 @@ namespace Slalom.Stacks.AspNetCore
             /// Gets or sets the expire time span.
             /// </summary>
             /// <value>The expire time span.</value>
-            public TimeSpan ExpireTimeSpan { get; set; } = TimeSpan.FromSeconds(1);
+            public TimeSpan ExpireTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
         }
 
         /// <summary>

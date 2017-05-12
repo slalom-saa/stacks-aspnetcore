@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 
-namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
+namespace Slalom.Stacks.AspNetCore.EndPoints
 {
     /// <summary>
     /// Gets the endpoints that this service exposes.

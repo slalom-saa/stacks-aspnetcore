@@ -5,7 +5,7 @@
 param (
     $Configuration = "DEBUG",
     $IncrementVersion = $false,
-    $Packages = @("Slalom.Stacks.AspNetCore")
+    $Packages = @("Slalom.Stacks.AspNetCore", "Slalom.Stacks.OData")
 )
 
 function Increment-Version() {

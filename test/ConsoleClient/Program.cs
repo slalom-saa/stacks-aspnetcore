@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
+using Slalom.Stacks.Domain;
+using Slalom.Stacks.OData;
+using Slalom.Stacks.Search;
 using Slalom.Stacks.Security;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Text;
@@ -13,24 +17,32 @@ using Slalom.Stacks.Validation;
 
 namespace ConsoleClient
 {
-   
-    public class AddRequest
+    public class SearchUsers
     {
-        public AddRequest(string name)
-        {
-            this.Name = name;
-        }
+        /// <summary>
+        /// Gets the text.
+        /// </summary>
+        /// <value>The text.</value>
+        public string Text { get; }
 
-        [NotNull("go")]
-        public string Name { get; }
+        public SearchUsers(string text)
+        {
+            this.Text = text;
+        }
     }
 
-    [EndPoint("add-item")]
-    public class AddItem : EndPoint<AddRequest, string>
+    public class User : ISearchResult
     {
-        public override string Receive(AddRequest instance)
+        public string Name { get; set; }
+        public int Id { get; set; }
+    }
+
+    [EndPoint("go/home")]
+    public class Go : EndPoint<SearchUsers, IQueryable<User>>
+    {
+        public override IQueryable<User> Receive(SearchUsers instance)
         {
-            return this.Request.User.Identity.Name;
+            return new User[] { new User() }.AsQueryable();
         }
     }
 
@@ -42,7 +54,7 @@ namespace ConsoleClient
             {
                 using (var stack = new Stack())
                 {
-                    stack.RunWebHost();
+                    stack.RunODataHost();
                 }
             }
             catch (Exception exception)
