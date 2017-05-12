@@ -7,7 +7,7 @@
 
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
+namespace Slalom.Stacks.AspNetCore.EndPoints
 {
     /// <summary>
     /// Requests an event subscription to the specified URL.

@@ -7,6 +7,7 @@ using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.AspNetCore;
 
 namespace Slalom.Stacks.OData.OData
 {
@@ -50,12 +51,12 @@ namespace Slalom.Stacks.OData.OData
         {
             return request =>
             {
-                string odataPath = request.Properties[Constants.CustomODataPath] as string ?? string.Empty;
 
 
-                var service = RootStartup.Stack.GetServices().Find(odataPath);
+                var service = RootStartup.Stack.GetServices().Find(request.RequestUri.PathAndQuery.Split('?')[0].Trim('/'));
 
-                string[] segments = odataPath.Split('/');
+                // TODO: adjust
+                string[] segments = request.RequestUri.PathAndQuery.Split('?')[0].Split('/');
                 string dataSource = segments[0];
                 request.Properties[Constants.ODataDataSource] = dataSource;
 

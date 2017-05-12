@@ -5,10 +5,11 @@
  * the LICENSE file, which is part of this source code package.
  */
 
+using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore.Messaging.EndPoints
+namespace Slalom.Stacks.AspNetCore.EndPoints
 {
     /// <summary>
     /// Creates an event subscription and published raised events to the specified URL.
