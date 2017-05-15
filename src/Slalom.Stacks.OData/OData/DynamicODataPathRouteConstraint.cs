@@ -8,9 +8,8 @@ using System.Web.Http.Routing;
 using System.Web.OData.Extensions;
 using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
-using Microsoft.OData.Core;
+using Microsoft.OData;
 using Microsoft.OData.Edm;
-using Microsoft.OData.Edm.Library;
 using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.OData.OData
@@ -27,7 +26,7 @@ namespace Slalom.Stacks.OData.OData
             Func<HttpRequestMessage, IEdmModel> modelProvider,
             string routeName,
             IEnumerable<IODataRoutingConvention> routingConventions)
-            : base(pathHandler, new EdmModel(), routeName, routingConventions)
+            : base(routeName)
         {
             this.EdmModelProvider = modelProvider;
         }
@@ -66,55 +65,12 @@ namespace Slalom.Stacks.OData.OData
                 return false;
             }
 
-            string oDataPathString = oDataPathValue as string;
-
-            ODataPath path;
-            IEdmModel model;
-            try
-            {
-                request.Properties[Constants.CustomODataPath] = oDataPathString;
-               
-
-                model = this.EdmModelProvider(request);
-                oDataPathString = (string)request.Properties[Constants.CustomODataPath];
-
-                string requestLeftPart = request.RequestUri.GetLeftPart(UriPartial.Path);
-                string serviceRoot = requestLeftPart;
-
-                if (!String.IsNullOrEmpty(oDataPathString))
-                {
-                    serviceRoot = RemoveODataPath(serviceRoot, oDataPathString);
-                }
-
-                string oDataPathAndQuery = requestLeftPart.Substring(serviceRoot.Length);
-                if (!String.IsNullOrEmpty(request.RequestUri.Query))
-                {
-                    oDataPathAndQuery += request.RequestUri.Query;
-                }
-
-                if (serviceRoot.EndsWith(_escapedSlash, StringComparison.OrdinalIgnoreCase))
-                {
-                    serviceRoot = serviceRoot.Substring(0, serviceRoot.Length - 3);
-                }
-
-                path = this.PathHandler.Parse(model, serviceRoot, ((Type)request.Properties[Constants.QueryType]).Name + "?" + request.RequestUri.Query);
-            }
-            catch (ODataException)
-            {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-            }
-
-            if (path == null)
-            {
-                return false;
-            }
+            ODataPath path = new ODataPath();
+            IEdmModel model = this.EdmModelProvider(request);
 
             HttpRequestMessageProperties odataProperties = request.ODataProperties();
-            odataProperties.Model = model;
-            odataProperties.PathHandler = this.PathHandler;
             odataProperties.Path = path;
             odataProperties.RouteName = this.RouteName;
-            odataProperties.RoutingConventions = this.RoutingConventions;
 
             if (values.ContainsKey(ODataRouteConstants.Controller))
             {

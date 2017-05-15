@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -83,10 +85,14 @@ namespace Slalom.Stacks.AspNetCore.Swagger
 
                     var responses = GetResponses(endPoint, registry);
 
+                    
+    
                     var paths = endPoint.Path.Split('/');
+                    var title = paths.Take(Math.Max(1, paths.Count() - 1)).Last().Replace("-", " ");
+                    title = Regex.Replace(title, @"\b\w", (Match match) => match.ToString().ToUpper());
                     var operation = new Operation
                     {
-                        Tags = new[] { paths.Take(Math.Max(1, paths.Count() - 1)).Last().ToTitleCase() },
+                        Tags = new[] { title },
                         OperationId = endPoint.RequestType.Name.Split(',')[0].Split('.').Last().Replace("Request", "").ToDelimited("-"),
                         Consumes = new[] { "application/json" },
                         Produces = new[] { "application/json" },

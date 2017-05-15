@@ -1,8 +1,9 @@
 {
-  "version": "1.8.7-*",
+  "version": "1.8.8-*",
   "authors": [
     "Stacks Contributors"
   ],
+  "description": "This package contains bootstrapping and middleware for AspNetCore and Stacks.",
   "packOptions": {
     "tags": [
       "slalom",
@@ -17,25 +18,22 @@
   "dependencies": {
     "System.ComponentModel.Annotations": "4.3.0",
     "Microsoft.AspNetCore": "1.1.1",
-    "Microsoft.AspNetCore.Hosting": "1.1.1",
-    "Microsoft.AspNetCore.Mvc": "1.1.2",
-    "Microsoft.AspNetCore.Mvc.ApiExplorer": "1.1.2",
-    "Microsoft.AspNetCore.Mvc.Formatters.Json": "1.1.2",
-    "Microsoft.AspNetCore.Server.IISIntegration": "1.1.1",
-    "Microsoft.AspNetCore.Server.Kestrel": "1.1.1",
-    "Microsoft.Extensions.DependencyModel": "1.1.1",
-    "Microsoft.AspNetCore.StaticFiles": "1.1.1",
-    "Microsoft.Extensions.FileProviders.Embedded": "1.1.0",
-    "Microsoft.AspNetCore.Http.Abstractions": "1.1.1",
-    "Autofac.Extensions.DependencyInjection": "4.0.0",
-    "Microsoft.Extensions.Configuration.FileExtensions": "1.1.1",
-    "Microsoft.Extensions.Configuration.Json": "1.1.1",
-    "Microsoft.AspNetCore.Authentication.Cookies": "1.1.1",
-    "Microsoft.AspNetCore.DataProtection.Extensions": "1.1.1",
-    "Microsoft.Extensions.Configuration.Binder": "1.1.1",
     "System.Diagnostics.DiagnosticSource": "4.3.1",
-    "System.Net.Http": "4.1.0",
-    "Slalom.Stacks": "1.8.7-develop-00475"
+    "Microsoft.AspNetCore.Authentication.Cookies": "1.1.2",
+    "Microsoft.AspNetCore.DataProtection.Extensions": "1.1.2",
+    "Microsoft.AspNetCore.Hosting": "1.1.2",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.1.2",
+    "Microsoft.AspNetCore.Mvc": "1.1.3",
+    "Microsoft.AspNetCore.Mvc.ApiExplorer": "1.1.3",
+    "Microsoft.AspNetCore.Mvc.Formatters.Json": "1.1.3",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.1.2",
+    "Microsoft.Extensions.Configuration.Binder": "1.1.2",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.1.2",
+    "Microsoft.Extensions.DependencyModel": "1.1.2",
+    "Microsoft.Extensions.FileProviders.Embedded": "1.1.1",
+    "Microsoft.AspNetCore.StaticFiles": "1.1.2",
+    "Autofac.Extensions.DependencyInjection": "4.1.0",
+    "Slalom.Stacks": "1.8.8"
   },
   "frameworks": {
     "net461": {
@@ -44,24 +42,9 @@
       },
       "imports": "dnxcore50"
     },
-    "netstandard1.6": {
-      "imports": "dnxcore50",
-      "dependencies": {
-        
-      },
-      "buildOptions": {
-        "define": [
-          "core"
-        ]
-      }
-    },
     "netcoreapp1.0": {
       "imports": "dnxcore50",
       "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.1"
-        }
       },
       "buildOptions": {
         "define": [
