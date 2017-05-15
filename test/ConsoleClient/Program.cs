@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.Domain;
-using Slalom.Stacks.OData;
 using Slalom.Stacks.Search;
 using Slalom.Stacks.Security;
 using Slalom.Stacks.Services;
@@ -17,32 +16,26 @@ using Slalom.Stacks.Validation;
 
 namespace ConsoleClient
 {
-    public class SearchUsers
+    public class InnerRequest
     {
-        /// <summary>
-        /// Gets the text.
-        /// </summary>
-        /// <value>The text.</value>
-        public string Text { get; }
-
-        public SearchUsers(string text)
-        {
-            this.Text = text;
-        }
+        [NotNull("outer")]
+        public string OuterProperty { get; set; }
     }
 
-    public class User : ISearchResult
+   
+    public class Request
     {
-        public string Name { get; set; }
-        public int Id { get; set; }
+        public string InnerProperty { get; set; }
+
+        public InnerRequest Outer { get; set; }
+
     }
 
-    [EndPoint("go/home")]
-    public class Go : EndPoint<SearchUsers, IQueryable<User>>
+    [EndPoint("sales/promo-codes/go")]
+    public class RequestEndPoint : EndPoint<Request>
     {
-        public override IQueryable<User> Receive(SearchUsers instance)
+        public override void Receive(Request instance)
         {
-            return new User[] { new User() }.AsQueryable();
         }
     }
 
@@ -54,7 +47,7 @@ namespace ConsoleClient
             {
                 using (var stack = new Stack())
                 {
-                    stack.RunODataHost();
+                    stack.RunWebHost();
                 }
             }
             catch (Exception exception)
