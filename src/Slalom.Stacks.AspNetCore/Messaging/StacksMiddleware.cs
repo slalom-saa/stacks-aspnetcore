@@ -37,18 +37,16 @@ namespace Slalom.Stacks.AspNetCore.Messaging
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Method == "OPTIONS")
-            {
-                await _next(context);
-                return;
-            }
-
             var endPoint = _stack.GetEndPoint(context.Request);
             if (endPoint != null)
             {
                 try
                 {
-                    if (context.Request.Method == "GET")
+                    if (context.Request.Method == "OPTIONS")
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    }
+                    else if (context.Request.Method == "GET")
                     {
                         if (context.Request.Query.Any())
                         {
