@@ -11,7 +11,8 @@
     },
     "Slalom.Stacks.OData": {
       "target": "project"
-    }
+    },
+    "System.Net.Http": "4.3.2"
   },
 
   "frameworks": {

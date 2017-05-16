@@ -20,6 +20,11 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             _accessor = accessor;
         }
 
+        protected override string GetSourceIPAddress()
+        {
+            return _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+
         protected override ClaimsPrincipal GetUser()
         {
             return _accessor.HttpContext?.User;
