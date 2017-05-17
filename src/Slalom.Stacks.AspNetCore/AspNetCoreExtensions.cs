@@ -45,6 +45,19 @@ namespace Slalom.Stacks.AspNetCore
         }
 
         /// <summary>
+        /// Gets an endpoint from the request.
+        /// </summary>
+        /// <param name="stack">The stack.</param>
+        /// <param name="request">The current request.</param>
+        /// <returns>Returns an endpoint from the request.</returns>
+        internal static EndPointMetaData GetEndPoint(this HttpRequest request, Stack stack)
+        {
+            var path = request.Path.Value.Trim('/');
+            var inventory = stack.GetServices();
+            return inventory.Find(path);
+        }
+
+        /// <summary>
         /// Starts and runs an API to access the stack.
         /// </summary>
         /// <param name="stack">The this instance.</param>

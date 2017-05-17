@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
@@ -12,41 +12,28 @@ using Slalom.Stacks.Search;
 using Slalom.Stacks.Security;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Text;
-using Slalom.Stacks.Validation;
+using EndPoint = Slalom.Stacks.Services.EndPoint;
 
 namespace ConsoleClient
 {
-    public class InnerRequest
+    [EndPoint("api/some")]
+    public class SomeEndPoint : EndPoint
     {
-        /// <summary>
-        /// Gets or sets the outer property.
-        /// </summary>
-        /// <value>The outer property.</value>
-        [NotNull("outer")]
-        public string OuterProperty { get; set; }
-    }
-
-   
-    public class OneRequest
-    {
-        public string InnerProperty { get; set; }
-
-        public InnerRequest Outer { get; set; }
-
-    }
-
-    [EndPoint("sales/promo-codes/other")]
-    public class Other : EndPoint<InnerRequest>
-    {
-    }
-
-    [EndPoint("sales/promo-codes/go")]
-    public class RequestEndPoint : EndPoint<OneRequest>
-    {
-        public override void Receive(OneRequest instance)
+        public override void Receive()
         {
+            this.Respond(this.Request.User.Identity.Name);
         }
     }
+
+    public class SomeController : EndPointController
+    {
+        [HttpGet("api/some"), ResponseCache(Duration = 15)]
+        public Task Get()
+        {
+            return this.Send();
+        }
+    }
+
 
     internal class Program
     {
