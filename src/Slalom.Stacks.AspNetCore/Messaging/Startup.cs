@@ -79,7 +79,10 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
             var defaultPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
+                .RequireAssertion(e =>
+                {
+                    return true;
+                })
                 .AddAuthenticationSchemes(Options.CookieAuthentication.AuthenticationScheme)
                 .Build();
 

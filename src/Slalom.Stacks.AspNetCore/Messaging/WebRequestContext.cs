@@ -5,6 +5,8 @@
  * the LICENSE file, which is part of this source code package.
  */
 
+using System;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Slalom.Stacks.Services.Messaging;
@@ -22,7 +24,30 @@ namespace Slalom.Stacks.AspNetCore.Messaging
 
         protected override string GetSourceIPAddress()
         {
+            var forward = _accessor.HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!String.IsNullOrWhiteSpace(forward))
+            {
+                var target = forward.Split(',')[0];
+                if (target.Contains("."))
+                {
+                    return target.Split(':')[0];
+                }
+            }
             return _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+
+
+        protected override string GetSession()
+        {
+            var context = _accessor.HttpContext;
+            var key = Guid.NewGuid().ToString();
+            if (context.Request.Cookies.ContainsKey("Stacks-Session"))
+            {
+                key = context.Request.Cookies["Stacks-Session"];
+                context.Response.Cookies.Delete("Stacks-Session");
+            }
+            context.Response.Cookies.Append("Stacks-Session", key, new CookieOptions { Expires = DateTimeOffset.Now.AddMinutes(15) });
+            return key;
         }
 
         protected override ClaimsPrincipal GetUser()

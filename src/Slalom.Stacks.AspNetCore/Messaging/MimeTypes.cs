@@ -14,7 +14,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
     /// <summary>
     /// Contains MIME types and methods to determine them.
     /// </summary>
-    internal static class MimeTypes
+    public static class MimeTypes
     {
         #region Dictionary
         private static readonly IDictionary<string, string> Mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
