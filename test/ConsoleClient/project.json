@@ -8,11 +8,7 @@
   "dependencies": {
     "Slalom.Stacks.AspNetCore": {
       "target": "project"
-    },
-    "Slalom.Stacks.OData": {
-      "target": "project"
-    },
-    "System.Net.Http": "4.3.2"
+    }
   },
 
   "frameworks": {
