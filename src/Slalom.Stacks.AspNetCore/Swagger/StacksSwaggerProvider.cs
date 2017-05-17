@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.AspNetCore.Swagger.Generator;
 using Slalom.Stacks.AspNetCore.Swagger.Model;
+using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
@@ -22,15 +23,6 @@ namespace Slalom.Stacks.AspNetCore.Swagger
 {
     public class StacksSwaggerProvider : ISwaggerProvider
     {
-        private readonly ServiceInventory _services;
-        private readonly IEnvironmentContext _environment;
-
-        public StacksSwaggerProvider(ServiceInventory services, IEnvironmentContext environment, IOptions<MvcJsonOptions> options)
-        {
-            _services = services;
-            _environment = environment;
-        }
-
         private static string GetFriendlyName(string name)
         {
             var type = Type.GetType(name, false);
@@ -57,13 +49,46 @@ namespace Slalom.Stacks.AspNetCore.Swagger
             return name;
         }
 
-        public SwaggerDocument GetSwagger(string documentName, string host = null, string basePath = null, string[] schemes = null)
+        static readonly HashSet<Type> BuiltInScalarTypes = new HashSet<Type>
         {
-            var registry = new SchemaRegistry(new JsonSerializerSettings
+            typeof(bool),
+            typeof(char),
+            typeof(byte),
+            typeof(short),
+            typeof(ushort),
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+            typeof(float),
+            typeof(double),
+            typeof(decimal),
+            typeof(string),
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(TimeSpan),
+            typeof(Guid),
+            typeof(Uri)
+        };
+
+        private readonly ServiceInventory _services;
+        private readonly IEnvironmentContext _environment;
+        private SchemaRegistry _registry;
+
+        public StacksSwaggerProvider(ServiceInventory services, IEnvironmentContext environment, IOptions<MvcJsonOptions> options)
+        {
+            _services = services;
+            _environment = environment;
+
+            _registry = new SchemaRegistry(new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
-            registry.GetOrRegister(typeof(ValidationError));
+        }
+
+        public SwaggerDocument GetSwagger(string documentName, string host = null, string basePath = null, string[] schemes = null)
+        {
+            _registry.GetOrRegister(typeof(ValidationError));
 
             var pathItems = new Dictionary<string, PathItem>();
             foreach (var service in _services.Hosts.SelectMany(e => e.Services))
@@ -74,43 +99,27 @@ namespace Slalom.Stacks.AspNetCore.Swagger
                     {
                         continue;
                     }
-                    var type = endPoint.RequestType;
-                    var schema = registry.GetOrRegister(type);
 
                     //schema.Example = new SwaggerCommand { Name = "sdaf" };
 
-                    var parameters = new List<IParameter>();
-                    parameters.Add(new BodyParameter { Name = "input", Schema = schema });
-                    foreach (var property in endPoint.RequestProperties)
-                    {
-                        //parameters.Add(new NonBodyParameter { Name = property.Name, Description = property.Comments?.Value, Type = GetFriendlyName(property.Type) });
-                    }
 
-                    var responses = GetResponses(endPoint, registry);
+
+                    var responses = GetResponses(endPoint, _registry);
 
                     var path = "/" + string.Join("/", endPoint.Path.Split('/').Skip(1));
                     var paths = endPoint.Path.Split('/');
 
                     var title = paths.Take(Math.Max(1, paths.Count() - 1)).Last().Replace("-", " ");
                     title = Regex.Replace(title, @"\b\w", (Match match) => match.ToString().ToUpper());
-                    var operation = new Operation
-                    {
-                        Tags = new[] { title },
-                        OperationId = "POST " + path,
-                        Consumes = new[] { "application/json" },
-                        Produces = new[] { "application/json" },
-                        Parameters = parameters,
-                        Responses = responses,
-                        Description = endPoint.Summary
-                    };
+
 
                     var pathItem = new PathItem
                     {
-                        Post = operation,
-                        //Get = operation
+                        Post = GetPostOperation(endPoint, title, path, responses),
+                        Get = GetGetOperation(endPoint, title, path, responses)
                     };
 
-                  
+
 
                     if (!pathItems.ContainsKey(path))
                     {
@@ -129,11 +138,69 @@ namespace Slalom.Stacks.AspNetCore.Swagger
                 Host = host,
                 BasePath = "/" + documentName,
                 Paths = pathItems,
-                Definitions = registry.Definitions,
+                Definitions = _registry.Definitions,
                 Schemes = schemes
                 //SecurityDefinitions = _settings.SecurityDefinitions
             };
             return swaggerDoc;
+        }
+
+        private Operation GetPostOperation(EndPointMetaData endPoint, string title, string path, Dictionary<string, Response> responses)
+        {
+            var type = endPoint.RequestType;
+
+
+           
+
+
+            var schema = _registry.GetOrRegister(type);
+
+            var parameters = new List<IParameter>();
+            parameters.Add(new BodyParameter { Name = "input", Schema = schema });
+
+            var operation = new Operation
+            {
+                Tags = new[] { title },
+                OperationId = "POST " + path,
+                Consumes = new[] { "application/json" },
+                Produces = new[] { "application/json" },
+                Parameters = parameters,
+                Responses = responses,
+                Description = endPoint.Summary
+            };
+            return operation;
+        }
+
+        private Operation GetGetOperation(EndPointMetaData endPoint, string title, string path, Dictionary<string, Response> responses)
+        {
+            var type = endPoint.RequestType;
+
+            if (!type.GetProperties().All(e => BuiltInScalarTypes.Contains(e.PropertyType)))
+            {
+                return null;
+            }
+
+           
+            var schema = _registry.GetOrRegister(type);
+
+            var parameters = new List<IParameter>();
+            foreach (var property in endPoint.RequestProperties)
+            {
+                var required = type.GetProperty(property.Name).GetCustomAttribute(typeof(ValidationAttribute), true) != null;
+                parameters.Add(new NonBodyParameter { Name = property.Name, Required = required, In = "query",  Description = property.Comments?.Value, Type = GetFriendlyName(property.Type) });
+            }
+
+            var operation = new Operation
+            {
+                Tags = new[] { title },
+                OperationId = "GET " + path,
+                Consumes = new[] { "application/json" },
+                Produces = new[] { "application/json" },
+                Parameters = parameters,
+                Responses = responses,
+                Description = endPoint.Summary
+            };
+            return operation;
         }
 
         private string GetDocumentTitle(string documentName)

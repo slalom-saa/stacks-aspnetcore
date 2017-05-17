@@ -18,6 +18,10 @@ namespace ConsoleClient
 {
     public class InnerRequest
     {
+        /// <summary>
+        /// Gets or sets the outer property.
+        /// </summary>
+        /// <value>The outer property.</value>
         [NotNull("outer")]
         public string OuterProperty { get; set; }
     }
@@ -29,6 +33,11 @@ namespace ConsoleClient
 
         public InnerRequest Outer { get; set; }
 
+    }
+
+    [EndPoint("sales/promo-codes/other")]
+    public class Other : EndPoint<InnerRequest>
+    {
     }
 
     [EndPoint("sales/promo-codes/go")]
