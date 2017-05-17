@@ -44,7 +44,7 @@ namespace Slalom.Stacks.AspNetCore.Swagger.Application
                 ? "/"
                 : httpContext.Request.PathBase.ToString();
 
-            var swagger = _swaggerProvider.GetSwagger(documentName, null, basePath);
+            var swagger = _swaggerProvider.GetSwagger(documentName, httpContext.Request.Host.ToString(), basePath, new[] { "http", "https" });
 
             // One last opportunity to modify the Swagger Document - this time with request context
             foreach (var filter in _options.PreSerializeFilters)
@@ -60,7 +60,7 @@ namespace Slalom.Stacks.AspNetCore.Swagger.Application
             documentName = null;
             if (request.Method != "GET") return false;
 
-			var routeValues = new RouteValueDictionary();
+            var routeValues = new RouteValueDictionary();
             if (!_requestMatcher.TryMatch(request.Path, routeValues) || !routeValues.ContainsKey("documentName")) return false;
 
             documentName = routeValues["documentName"].ToString();

@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.AspNetCore.Swagger.Generator;
 using Slalom.Stacks.AspNetCore.Swagger.Model;
+using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Text;
@@ -22,10 +23,12 @@ namespace Slalom.Stacks.AspNetCore.Swagger
     public class StacksSwaggerProvider : ISwaggerProvider
     {
         private readonly ServiceInventory _services;
+        private readonly IEnvironmentContext _environment;
 
-        public StacksSwaggerProvider(ServiceInventory services, IOptions<MvcJsonOptions> options)
+        public StacksSwaggerProvider(ServiceInventory services, IEnvironmentContext environment, IOptions<MvcJsonOptions> options)
         {
             _services = services;
+            _environment = environment;
         }
 
         private static string GetFriendlyName(string name)
@@ -85,15 +88,15 @@ namespace Slalom.Stacks.AspNetCore.Swagger
 
                     var responses = GetResponses(endPoint, registry);
 
-                    
-    
+                    var path = "/" + string.Join("/", endPoint.Path.Split('/').Skip(1));
                     var paths = endPoint.Path.Split('/');
+
                     var title = paths.Take(Math.Max(1, paths.Count() - 1)).Last().Replace("-", " ");
                     title = Regex.Replace(title, @"\b\w", (Match match) => match.ToString().ToUpper());
                     var operation = new Operation
                     {
                         Tags = new[] { title },
-                        OperationId = endPoint.RequestType.Name.Split(',')[0].Split('.').Last().Replace("Request", "").ToDelimited("-"),
+                        OperationId = "POST " + path,
                         Consumes = new[] { "application/json" },
                         Produces = new[] { "application/json" },
                         Parameters = parameters,
@@ -107,7 +110,7 @@ namespace Slalom.Stacks.AspNetCore.Swagger
                         //Get = operation
                     };
 
-                    var path = "/" + string.Join("/", endPoint.Path.Split('/').Skip(1));
+                  
 
                     if (!pathItems.ContainsKey(path))
                     {
@@ -120,7 +123,8 @@ namespace Slalom.Stacks.AspNetCore.Swagger
             {
                 Info = new Info
                 {
-                    Title = documentName.ToTitleCase() + " API"
+                    Title = this.GetDocumentTitle(documentName),
+                    Version = "v1"
                 },
                 Host = host,
                 BasePath = "/" + documentName,
@@ -130,6 +134,17 @@ namespace Slalom.Stacks.AspNetCore.Swagger
                 //SecurityDefinitions = _settings.SecurityDefinitions
             };
             return swaggerDoc;
+        }
+
+        private string GetDocumentTitle(string documentName)
+        {
+            var title = documentName.ToTitleCase() + " API";
+            var environment = _environment.Resolve().EnvironmentName;
+            if (!String.IsNullOrWhiteSpace(environment))
+            {
+                title += " - " + environment;
+            }
+            return title;
         }
 
         private static Dictionary<string, Response> GetResponses(EndPointMetaData endPoint, SchemaRegistry registry)

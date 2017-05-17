@@ -1,5 +1,5 @@
 {
-  "version": "1.8.10-*",
+  "version": "1.8.11-*",
   "authors": [
     "Stacks Contributors"
   ],
@@ -33,7 +33,7 @@
     "Microsoft.Extensions.FileProviders.Embedded": "1.1.1",
     "Microsoft.AspNetCore.StaticFiles": "1.1.2",
     "Autofac.Extensions.DependencyInjection": "4.1.0",
-    "Slalom.Stacks": "1.8.8"
+    "Slalom.Stacks": "1.8.11"
   },
   "frameworks": {
     "net461": {

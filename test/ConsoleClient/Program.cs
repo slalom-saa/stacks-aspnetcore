@@ -23,7 +23,7 @@ namespace ConsoleClient
     }
 
    
-    public class Request
+    public class OneRequest
     {
         public string InnerProperty { get; set; }
 
@@ -32,9 +32,9 @@ namespace ConsoleClient
     }
 
     [EndPoint("sales/promo-codes/go")]
-    public class RequestEndPoint : EndPoint<Request>
+    public class RequestEndPoint : EndPoint<OneRequest>
     {
-        public override void Receive(Request instance)
+        public override void Receive(OneRequest instance)
         {
         }
     }
