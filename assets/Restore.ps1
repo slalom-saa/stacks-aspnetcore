@@ -1,4 +1,9 @@
-﻿Push-Location $PSScriptRoot
+﻿<#
+.SYNOPSIS
+    Restores the Stacks AspNetCore NuGet packages.
+#>
+
+Push-Location $PSScriptRoot
 
 foreach($item in Get-ChildItem -Path ..\ -Filter 'project.json' -Recurse) {
     Push-Location $item.Directory

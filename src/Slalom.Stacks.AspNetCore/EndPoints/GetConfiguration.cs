@@ -13,7 +13,7 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
     /// <summary>
     /// Gets the AspNetCore configuration.
     /// </summary>
-    [EndPoint("_system/configuration/aspnetcore")]
+    [EndPoint("_system/configuration/aspnetcore", Method = "GET")]
     public class GetConfiguration : EndPoint
     {
         private readonly IConfiguration _configuration;

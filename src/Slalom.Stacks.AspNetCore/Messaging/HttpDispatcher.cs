@@ -16,23 +16,23 @@ using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore.Messaging
 {
-    public class HttpDispatcher : IRemoteMessageDispatcher
+    public class HttpRouter : IRemoteRouter
     {
         private readonly IHttpContextAccessor _context;
         private readonly RemoteServiceInventory _endPoints;
 
-        public HttpDispatcher(IHttpContextAccessor context, RemoteServiceInventory endPoints)
+        public HttpRouter(IHttpContextAccessor context, RemoteServiceInventory endPoints)
         {
             _context = context;
             _endPoints = endPoints;
         }
 
-        public bool CanDispatch(Request request)
+        public bool CanRoute(Request request)
         {
             return _endPoints.EndPoints.Any(e => e.Path == request.Path);
         }
 
-        public async Task<MessageResult> Dispatch(Request request, ExecutionContext parentContext, TimeSpan? timeout = null)
+        public async Task<MessageResult> Route(Request request, ExecutionContext parentContext, TimeSpan? timeout = null)
         {
             var context = new ExecutionContext(request, parentContext);
             var cookieContainer = new CookieContainer();

@@ -43,7 +43,7 @@ namespace Slalom.Stacks.OData.OData
 
         internal static IEdmType GetEdmType(this ODataPath path)
         {
-            return path.Segments[0].EdmType;
+            return path.Segments[0].GetEdmType(path.EdmType);
 
         }
 

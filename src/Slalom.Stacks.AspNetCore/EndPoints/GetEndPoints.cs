@@ -15,7 +15,7 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
     /// <summary>
     /// Gets the endpoints that this service exposes.
     /// </summary>
-    [EndPoint("_system/endpoints")]
+    [EndPoint("_system/endpoints", Method = "GET")]
     public class GetEndPoints : EndPoint
     {
         private readonly IHttpContextAccessor _context;
