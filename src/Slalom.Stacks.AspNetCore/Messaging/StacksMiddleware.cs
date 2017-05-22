@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.Serialization;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
@@ -146,12 +147,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
 
         private static void Respond(HttpContext context, object content, HttpStatusCode statusCode)
         {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content, settings))))
+            using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content, DefaultSerializationSettings.Instance))))
             {
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int) statusCode;

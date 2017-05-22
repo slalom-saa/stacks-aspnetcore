@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Slalom.Stacks.Serialization;
+using Slalom.Stacks.Services.EndPoints;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Services.OpenApi;
 
@@ -38,19 +39,9 @@ namespace Slalom.Stacks.AspNetCore.Swagger.Application
                 return;
             }
 
-            var basePath = string.IsNullOrEmpty(httpContext.Request.PathBase)
-                ? "/"
-                : httpContext.Request.PathBase.ToString();
+            var document = _messages.Send(new GetOpenApiRequest(httpContext.Request.Host.ToString(), httpContext.Request.Query.ContainsKey("admin"))).Result.Response as OpenApiDocument;
 
-            var request = _messages.Send("_system/open-api").Result;
-            if (!request.IsSuccessful)
-            {
-                throw new System.Exception("adf");
-            }
-
-            var document = request.Response as OpenApiDocument;
-
-            RespondWithSwaggerJson(httpContext.Response, document);
+            this.RespondWithSwaggerJson(httpContext.Response, document);
         }
 
         private bool RequestingSwaggerDocument(HttpRequest request, out string documentName)

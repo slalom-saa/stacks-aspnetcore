@@ -1,0 +1,7 @@
+﻿{
+  "stacks": {
+    "title": "AspNetCore Console Host",
+    "version": "1.0.0",
+    "description": "Some description here"
+  }
+}

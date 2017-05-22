@@ -13,8 +13,8 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
     /// <summary>
     /// Gets the AspNetCore configuration.
     /// </summary>
-    [EndPoint("_system/configuration/aspnetcore", Method = "GET")]
-    public class GetConfiguration : EndPoint
+    [EndPoint("_system/configuration/aspnetcore", Method = "GET", Public = false, Name = "Get AspNetCore Configuration")]
+    public class GetConfiguration : EndPoint<GetConfigurationRequest, AspNetCoreOptions>
     {
         private readonly IConfiguration _configuration;
 
@@ -28,11 +28,12 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
         }
 
         /// <inheritdoc />
-        public override void Receive()
+        public override AspNetCoreOptions Receive(GetConfigurationRequest instance)
         {
             var options = new AspNetCoreOptions();
             _configuration.GetSection("Stacks:AspNetCore").Bind(options);
-            this.Respond(options);
+
+            return options;
         }
     }
 }

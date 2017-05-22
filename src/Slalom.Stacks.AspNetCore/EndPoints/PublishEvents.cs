@@ -16,7 +16,7 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
     /// <summary>
     /// Publishes events using the provided JSON text.
     /// </summary>
-    [EndPoint("_system/events/publish")]
+    [EndPoint("_system/events/publish", Public = false)]
     public class PublishEvents : EndPoint<PublishEventsRequest>
     {
         private readonly IMessageGateway _messages;

@@ -53,10 +53,8 @@ namespace Slalom.Stacks.AspNetCore.Messaging
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    var current = services
-                        .Hosts.SelectMany(e => e.Services)
-                        .Where(e => e.EndPoints.Any(x => x.Public))
-                        .SelectMany(e => e.EndPoints)
+                    var current = services.EndPoints
+                    .Where(x => x.Public)
                         .Select(e => e.Path)
                         .Select(e => e?.Split('/').FirstOrDefault())
                         .Distinct()
