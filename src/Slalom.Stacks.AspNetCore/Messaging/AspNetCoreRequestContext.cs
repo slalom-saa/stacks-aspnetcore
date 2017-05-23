@@ -13,30 +13,24 @@ using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore.Messaging
 {
-    public class WebRequestContext : Request
+    /// <summary>
+    /// Provides a request context for AspNetCore.
+    /// </summary>
+    /// <seealso cref="Slalom.Stacks.Services.Messaging.Request" />
+    public class AspNetCoreRequestContext : Request
     {
         private readonly IHttpContextAccessor _accessor;
 
-        public WebRequestContext(IHttpContextAccessor accessor)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AspNetCoreRequestContext"/> class.
+        /// </summary>
+        /// <param name="accessor">The accessor.</param>
+        public AspNetCoreRequestContext(IHttpContextAccessor accessor)
         {
             _accessor = accessor;
         }
 
-        protected override string GetSourceIPAddress()
-        {
-            var forward = _accessor.HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-            if (!String.IsNullOrWhiteSpace(forward))
-            {
-                var target = forward.Split(',')[0];
-                if (target.Contains("."))
-                {
-                    return target.Split(':')[0];
-                }
-            }
-            return _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-        }
-
-
+        /// <inheritdoc />
         protected override string GetSession()
         {
             var context = _accessor.HttpContext;
@@ -50,6 +44,22 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             return key;
         }
 
+        /// <inheritdoc />
+        protected override string GetSourceIPAddress()
+        {
+            var forward = _accessor.HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(forward))
+            {
+                var target = forward.Split(',')[0];
+                if (target.Contains("."))
+                {
+                    return target.Split(':')[0];
+                }
+            }
+            return _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+
+        /// <inheritdoc />
         protected override ClaimsPrincipal GetUser()
         {
             return _accessor.HttpContext?.User;

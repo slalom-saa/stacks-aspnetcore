@@ -15,7 +15,6 @@ using Owin;
 using Slalom.Stacks.AspNetCore;
 using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.AspNetCore.Swagger;
-using Slalom.Stacks.AspNetCore.Swagger.Application;
 using Slalom.Stacks.AspNetCore.Swagger.UI.Application;
 using Slalom.Stacks.OData.OData;
 using Slalom.Stacks.Services;
@@ -54,7 +53,7 @@ namespace Slalom.Stacks.OData
 
             Stack.Use(builder =>
             {
-                builder.RegisterType<WebRequestContext>().As<IRequestContext>();
+                builder.RegisterType<AspNetCoreRequestContext>().As<IRequestContext>();
                 builder.Populate(services);
             });
 
@@ -64,19 +63,7 @@ namespace Slalom.Stacks.OData
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseMvc();
-
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                var services = Stack.GetServices().EndPoints.Where(x => x.Public).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
-                    .Distinct().Where(e => e != null && !e.StartsWith("_")).OrderBy(e => e);
-                foreach (var service in services)
-                {
-
-                    c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
-                }
-            });
+            app.UseSwaggerUI();
 
             app.UseOwinApp(owinApp =>
             {

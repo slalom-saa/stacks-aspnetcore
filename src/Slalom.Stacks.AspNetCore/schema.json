@@ -18,6 +18,9 @@
         },
         "subscriptions": {
           "$ref": "#/definitions/subscriptions"
+        },
+        "apiKeyAuthentication": {
+          "$ref": "#/definitions/apiKeyAuthentication"
         }
       },
       "type": "object"
@@ -75,6 +78,22 @@
           "uniqueItems": true
         }
       }
+    },
+    "apiKeyAuthentication": {
+      "description": "Options to enable API key authentication.",
+      "properties": {
+        "allow": {
+          "type": "boolean",
+          "default": false,
+          "description": "Set to true to allow API key authentication."
+        },
+        "key": {
+          "type": "string",
+          "default": "A key to decrypt the header value."
+        }
+      },
+      "required": [ "allow", "key" ],
+      "type": "object"
     }
   },
   "properties": {

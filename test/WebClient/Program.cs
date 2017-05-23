@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Slalom.Stacks;
 using Slalom.Stacks.AspNetCore;
-using Slalom.Stacks.OData;
 using Slalom.Stacks.Search;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
@@ -40,7 +39,7 @@ namespace WebClient
         {
             using (var stack = new Stack())
             {
-                stack.RunODataHost();
+                stack.RunWebHost();
             }
         }
     }

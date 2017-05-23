@@ -5,10 +5,6 @@
  * the LICENSE file, which is part of this source code package.
  */
 
-
-// TODO: Fix setting header issue
-// TODO: Swagger from relative URLs
-
 using System;
 using System.IO;
 using System.Linq;
@@ -18,24 +14,37 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using Slalom.Stacks.AspNetCore.Messaging;
 using Slalom.Stacks.Serialization;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.AspNetCore.Messaging
+namespace Slalom.Stacks.AspNetCore.Middleware
 {
+    /// <summary>
+    /// Middleware that executes Stacks endpoints.
+    /// </summary>
     public class StacksMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly Stack _stack;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StacksMiddleware"/> class.
+        /// </summary>
+        /// <param name="next">The next delegate.</param>
+        /// <param name="stack">The configured stack.</param>
         public StacksMiddleware(RequestDelegate next, Stack stack)
         {
             _next = next;
             _stack = stack;
         }
 
+        /// <summary>
+        /// Invokes the middleware using the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns>Return a task for asychronous programming.</returns>
         public async Task Invoke(HttpContext context)
         {
             var endPoint = _stack.GetEndPoint(context.Request);
@@ -97,7 +106,6 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             }
         }
 
-
         private static void HandleResult(MessageResult result, HttpContext context)
         {
             if (result.ValidationErrors.Any(e => e.Type == ValidationType.Input))
@@ -121,7 +129,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             {
                 if (result.Response is Document)
                 {
-                    Respond(context, (Document) result.Response, HttpStatusCode.OK);
+                    Respond(context, (Document)result.Response, HttpStatusCode.OK);
                 }
                 else
                 {
@@ -130,7 +138,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             }
             else
             {
-                context.Response.StatusCode = (int) HttpStatusCode.NoContent;
+                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
             }
         }
 
@@ -139,7 +147,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             using (var stream = new MemoryStream(content.Content))
             {
                 context.Response.ContentType = MimeTypes.GetMimeType(Path.GetExtension(content.Name));
-                context.Response.StatusCode = (int) statusCode;
+                context.Response.StatusCode = (int)statusCode;
                 context.Response.ContentLength = content.Content.Length;
                 stream.CopyTo(context.Response.Body);
             }
@@ -150,7 +158,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
             using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content, DefaultSerializationSettings.Instance))))
             {
                 context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int) statusCode;
+                context.Response.StatusCode = (int)statusCode;
                 context.Response.ContentLength = inner.ToArray().Length;
                 inner.CopyTo(context.Response.Body);
             }

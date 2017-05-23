@@ -13,10 +13,11 @@ using Slalom.Stacks.Security;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Text;
 using EndPoint = Slalom.Stacks.Services.EndPoint;
+#pragma warning disable 1591
 
 namespace ConsoleClient
 {
-    [EndPoint("api/some")]
+    [EndPoint("api/some", Secure = true)]
     public class SomeEndPoint : EndPoint
     {
         public override void Receive()
