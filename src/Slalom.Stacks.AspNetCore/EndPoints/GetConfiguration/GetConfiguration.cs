@@ -6,14 +6,15 @@
  */
 
 using Microsoft.Extensions.Configuration;
+using Slalom.Stacks.AspNetCore.Settings;
 using Slalom.Stacks.Services;
 
-namespace Slalom.Stacks.AspNetCore.EndPoints
+namespace Slalom.Stacks.AspNetCore.EndPoints.GetConfiguration
 {
     /// <summary>
     /// Gets the AspNetCore configuration.
     /// </summary>
-    [EndPoint("_system/configuration/aspnetcore", Method = "GET", Public = false, Name = "Get AspNetCore Configuration")]
+    [EndPoint("_system/configuration/aspnetcore", Method = "GET", Public = false, Name = "Get AspNetCore Configuration", Secure = true)]
     public class GetConfiguration : EndPoint<GetConfigurationRequest, AspNetCoreOptions>
     {
         private readonly IConfiguration _configuration;

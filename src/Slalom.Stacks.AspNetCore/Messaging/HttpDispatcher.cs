@@ -16,22 +16,34 @@ using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.AspNetCore.Messaging
 {
+    /// <summary>
+    /// Router for connected HTTP services.  Requires that the remote endpoints have been added to the shared remove service inventory.
+    /// </summary>
+    /// <seealso cref="RemoteServiceInventory"/>
+    /// <seealso cref="Slalom.Stacks.Services.Messaging.IRemoteRouter" />
     public class HttpRouter : IRemoteRouter
     {
         private readonly IHttpContextAccessor _context;
         private readonly RemoteServiceInventory _endPoints;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpRouter"/> class.
+        /// </summary>
+        /// <param name="context">The context accessor.</param>
+        /// <param name="endPoints">The remote service inventory.</param>
         public HttpRouter(IHttpContextAccessor context, RemoteServiceInventory endPoints)
         {
             _context = context;
             _endPoints = endPoints;
         }
 
+        /// <inheritdoc />
         public bool CanRoute(Request request)
         {
             return _endPoints.EndPoints.Any(e => e.Path == request.Path);
         }
 
+        /// <inheritdoc />
         public async Task<MessageResult> Route(Request request, ExecutionContext parentContext, TimeSpan? timeout = null)
         {
             var context = new ExecutionContext(request, parentContext);

@@ -1,41 +1,48 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
 namespace Slalom.Stacks.AspNetCore.Swagger.UI.Application
 {
-    public class SwaggerUIFileProvider : IFileProvider
+    /// <summary>
+    /// The Swagger UI File provider.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    internal class SwaggerUIFileProvider : IFileProvider
     {
-        private const string StaticFilesNamespace =
-            "Slalom.Stacks.AspNetCore.bower_components.swagger_ui.dist";
-        private const string IndexResourceName =
-            "Slalom.Stacks.AspNetCore.Swagger.UI.Template.index.html";
+        private const string StaticFilesNamespace = "Slalom.Stacks.AspNetCore.bower_components.swagger_ui.dist";
+        private const string IndexResourceName = "Slalom.Stacks.AspNetCore.Swagger.index.html";
+        private readonly EmbeddedFileProvider _staticFileProvider;
 
         private readonly Assembly _thisAssembly;
-        private readonly EmbeddedFileProvider _staticFileProvider;
-        private readonly IDictionary<string, string> _indexParameters;
 
-        public SwaggerUIFileProvider(IDictionary<string, string> indexParameters)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SwaggerUIFileProvider"/> class.
+        /// </summary>
+        public SwaggerUIFileProvider()
         {
             _thisAssembly = this.GetType().GetTypeInfo().Assembly;
             _staticFileProvider = new EmbeddedFileProvider(_thisAssembly, StaticFilesNamespace);
-            _indexParameters = indexParameters;
         }
 
+        /// <inheritdoc />
         public IDirectoryContents GetDirectoryContents(string subpath)
         {
             return _staticFileProvider.GetDirectoryContents(subpath);
         }
 
+        /// <inheritdoc />
         public IFileInfo GetFileInfo(string subpath)
         {
             if (subpath == "/index.html")
-                return new SwaggerUIIndexFileInfo(_thisAssembly, IndexResourceName, _indexParameters);
+            {
+                return new SwaggerUIIndexFileInfo(_thisAssembly, IndexResourceName);
+            }
 
             return _staticFileProvider.GetFileInfo(subpath);
         }
 
+        /// <inheritdoc />
         public IChangeToken Watch(string filter)
         {
             return _staticFileProvider.Watch(filter);

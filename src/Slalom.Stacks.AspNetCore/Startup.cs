@@ -6,22 +6,19 @@
  */
 
 using System;
-using System.Linq;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using Slalom.Stacks.AspNetCore.Swagger.Application;
-using Slalom.Stacks.AspNetCore.Swagger.UI.Application;
-using Slalom.Stacks.Services;
-using Autofac;
-using Slalom.Stacks.Configuration;
+using Slalom.Stacks.AspNetCore.Middleware;
+using Slalom.Stacks.AspNetCore.Settings;
+using Slalom.Stacks.AspNetCore.Swagger;
 
 namespace Slalom.Stacks.AspNetCore.Messaging
 {
@@ -45,27 +42,11 @@ namespace Slalom.Stacks.AspNetCore.Messaging
 
             app.UseCookieAuthentication(Options.GetCookieAuthenticationOptions());
 
+            app.UseMiddleware<ApiKeyMiddleware>(Options);
+
             app.UseMvc();
 
-            var services = Stack.GetServices();
-            if (services.EndPoints.Any(e => e.Public && !string.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_")))
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    var current = services.EndPoints
-                    .Where(x => x.Public)
-                        .Select(e => e.Path)
-                        .Select(e => e?.Split('/').FirstOrDefault())
-                        .Distinct()
-                        .Where(e => e != null && !e.StartsWith("_"))
-                        .OrderBy(e => e);
-                    foreach (var service in current)
-                    {
-                        c.SwaggerEndpoint($"/swagger/{service}/swagger.json", Stack.Container.Resolve<Application>().Title);
-                    }
-                });
-            }
+            app.UseSwaggerUI();
 
             app.UseStacks(Stack);
         }
@@ -84,15 +65,24 @@ namespace Slalom.Stacks.AspNetCore.Messaging
                 .AddAuthenticationSchemes(Options.CookieAuthentication.AuthenticationScheme)
                 .Build();
 
-            var mvc = services.AddMvc(setup => { setup.Filters.Add(new AuthorizeFilter(defaultPolicy)); })
-                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });
+            var mvc = services.AddMvc(setup =>
+                              {
+                                  setup.Filters.Add(new AuthorizeFilter(defaultPolicy));
+                              })
+                              .AddJsonOptions(options =>
+                              {
+                                  options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                              });
 
             foreach (var assembly in Stack.Assemblies)
             {
                 mvc.AddApplicationPart(assembly);
             }
 
-            Stack.Use(builder => { builder.Populate(services); });
+            Stack.Use(builder =>
+            {
+                builder.Populate(services);
+            });
             return new AutofacServiceProvider(Stack.Container);
         }
     }

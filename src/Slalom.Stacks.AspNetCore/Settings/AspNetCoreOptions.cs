@@ -14,13 +14,21 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
 using Slalom.Stacks.Security;
 
-namespace Slalom.Stacks.AspNetCore
+namespace Slalom.Stacks.AspNetCore.Settings
 {
     /// <summary>
     /// Options for AspNetCore.
     /// </summary>
     public class AspNetCoreOptions
     {
+        /// <summary>
+        /// Gets or sets the API key authentication settings.
+        /// </summary>
+        /// <value>
+        /// The API key authentication settings.
+        /// </value>
+        public ApiKeyAuthenticationSettings ApiKeyAuthentication { get; set; } = new ApiKeyAuthenticationSettings();
+
         /// <summary>
         /// Gets or sets the cookie authentication settings.
         /// </summary>
@@ -36,10 +44,10 @@ namespace Slalom.Stacks.AspNetCore
         internal Action<CorsPolicyBuilder> CorsOptions { get; set; } = builder =>
         {
             builder.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .Build();
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials()
+                   .Build();
         };
 
         internal string[] Urls { get; set; }
@@ -83,7 +91,7 @@ namespace Slalom.Stacks.AspNetCore
                 {
                     OnRedirectToLogin = a =>
                     {
-                        a.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                        a.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                         return Task.FromResult(0);
                     },
                     OnValidatePrincipal = async a =>
@@ -141,52 +149,7 @@ namespace Slalom.Stacks.AspNetCore
             }
         }
 
-        /// <summary>
-        /// Settings for cookie authentication..
-        /// </summary>
-        public class CookieAuthenticationSettings
-        {
-            /// <summary>
-            /// Gets or sets the authentication scheme name.
-            /// </summary>
-            /// <value>The authentication scheme name.</value>
-            public string AuthenticationScheme { get; set; } = "Cookies";
-
-            /// <summary>
-            /// Gets or sets the name of the cookie.
-            /// </summary>
-            /// <value>The name of the cookie.</value>
-            public string CookieName { get; set; } = ".AspNetCore.Cookies";
-
-            /// <summary>
-            /// Gets or sets the data protection key that is used to encrypt the cookie.
-            /// </summary>
-            /// <value>The data protection key that is used to encrypt the cookie.</value>
-            public string DataProtectionKey { get; set; } = @"Stacks";
-
-            /// <summary>
-            /// Gets or sets the expire time span.
-            /// </summary>
-            /// <value>The expire time span.</value>
-            public TimeSpan ExpireTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
-        }
-
-        /// <summary>
-        /// Settings for subscriptions.
-        /// </summary>
-        public class SubscriptionSettings
-        {
-            /// <summary>
-            /// Gets or sets the local URL of the service that will be called on publish.
-            /// </summary>
-            /// <value>The local URL of the service that will be called on publish.</value>
-            public string Local { get; set; }
-
-            /// <summary>
-            /// Gets or sets the remote URLs to subscribe to.
-            /// </summary>
-            /// <value>The remote URLs to subscribe to.</value>
-            public string[] Remote { get; set; } = new string[0];
-        }
+     
+       
     }
 }

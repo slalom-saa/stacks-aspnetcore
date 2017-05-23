@@ -19,7 +19,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Slalom.Stacks.AspNetCore.Messaging;
-using Slalom.Stacks.AspNetCore.Swagger;
+using Slalom.Stacks.AspNetCore.Middleware;
+using Slalom.Stacks.AspNetCore.Settings;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
@@ -32,32 +33,6 @@ namespace Slalom.Stacks.AspNetCore
     public static class AspNetCoreExtensions
     {
         /// <summary>
-        /// Gets an endpoint from the request.
-        /// </summary>
-        /// <param name="stack">The stack.</param>
-        /// <param name="request">The current request.</param>
-        /// <returns>Returns an endpoint from the request.</returns>
-        internal static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
-        {
-            var path = request.Path.Value.Trim('/');
-            var inventory = stack.GetServices();
-            return inventory.Find(path);
-        }
-
-        /// <summary>
-        /// Gets an endpoint from the request.
-        /// </summary>
-        /// <param name="stack">The stack.</param>
-        /// <param name="request">The current request.</param>
-        /// <returns>Returns an endpoint from the request.</returns>
-        internal static EndPointMetaData GetEndPoint(this HttpRequest request, Stack stack)
-        {
-            var path = request.Path.Value.Trim('/');
-            var inventory = stack.GetServices();
-            return inventory.Find(path);
-        }
-
-        /// <summary>
         /// Starts and runs an API to access the stack.
         /// </summary>
         /// <param name="stack">The this instance.</param>
@@ -66,7 +41,7 @@ namespace Slalom.Stacks.AspNetCore
         {
             stack.Use(e =>
             {
-                e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
+                e.RegisterType<AspNetCoreRequestContext>().As<IRequestContext>().AsSelf();
                 e.RegisterType<HttpRouter>().AsImplementedInterfaces().AsSelf().SingleInstance();
             });
 
@@ -111,7 +86,33 @@ namespace Slalom.Stacks.AspNetCore
             return app.UseMiddleware<StacksMiddleware>(stack);
         }
 
-        private static async Task Subscribe(AspNetCoreOptions.SubscriptionSettings options)
+        /// <summary>
+        /// Gets an endpoint from the request.
+        /// </summary>
+        /// <param name="stack">The stack.</param>
+        /// <param name="request">The current request.</param>
+        /// <returns>Returns an endpoint from the request.</returns>
+        internal static EndPointMetaData GetEndPoint(this Stack stack, HttpRequest request)
+        {
+            var path = request.Path.Value.Trim('/');
+            var inventory = stack.GetServices();
+            return inventory.Find(path);
+        }
+
+        /// <summary>
+        /// Gets an endpoint from the request.
+        /// </summary>
+        /// <param name="stack">The stack.</param>
+        /// <param name="request">The current request.</param>
+        /// <returns>Returns an endpoint from the request.</returns>
+        internal static EndPointMetaData GetEndPoint(this HttpRequest request, Stack stack)
+        {
+            var path = request.Path.Value.Trim('/');
+            var inventory = stack.GetServices();
+            return inventory.Find(path);
+        }
+
+        private static async Task Subscribe(SubscriptionSettings options)
         {
             var target = Startup.Stack.Container.Resolve<RemoteServiceInventory>();
             using (var client = new HttpClient())
@@ -152,7 +153,6 @@ namespace Slalom.Stacks.AspNetCore
                         }
                         await Task.Delay(TimeSpan.FromMinutes(15));
                     }
-                   
                 }
             }
         }

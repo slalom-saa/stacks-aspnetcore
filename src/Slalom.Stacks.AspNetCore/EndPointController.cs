@@ -1,4 +1,10 @@
-using System.Collections.Generic;
+/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -6,19 +12,27 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.AspNetCore.Messaging;
-using Slalom.Stacks.Services.Inventory;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.AspNetCore
 {
+    // TODO: Find a common method for requests and responses
+
+    /// <summary>
+    /// Base controller to support decorating Stacks endpoints.
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
     public abstract class EndPointController : Controller
     {
+        /// <summary>
+        /// Executes the endpoints send method.
+        /// </summary>
+        /// <returns></returns>
         protected async Task Send()
         {
             var context = this.Request.HttpContext;
@@ -27,11 +41,11 @@ namespace Slalom.Stacks.AspNetCore
             {
                 if (context.Request.Method == "OPTIONS")
                 {
-                    context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
                 }
                 else if (context.Request.Method == "GET")
                 {
-                    if (Enumerable.Any<KeyValuePair<string, StringValues>>(context.Request.Query))
+                    if (context.Request.Query.Any())
                     {
                         var content = new JObject();
                         foreach (var item in context.Request.Query)
@@ -64,7 +78,7 @@ namespace Slalom.Stacks.AspNetCore
                 }
                 else
                 {
-                    context.Response.StatusCode = (int) HttpStatusCode.MethodNotAllowed;
+                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 }
             }
         }
