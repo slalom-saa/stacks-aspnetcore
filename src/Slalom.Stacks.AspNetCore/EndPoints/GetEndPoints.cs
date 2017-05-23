@@ -13,10 +13,10 @@ using Slalom.Stacks.Services.Inventory;
 namespace Slalom.Stacks.AspNetCore.EndPoints
 {
     /// <summary>
-    /// Gets the endpoints that this service exposes.
+    /// Gets the endpoints that are exposed by HTTP.  This is mainly used by the system for peer-to-peer discovery but can be scanned to see what endpoints are available.
     /// </summary>
-    [EndPoint("_system/endpoints")]
-    public class GetEndPoints : EndPoint
+    [EndPoint("_system/endpoints", Method = "GET", Name = "Get Available Endpoints", Public = false)]
+    public class GetEndPoints : EndPoint<GetEndPointsRequest, RemoteService>
     {
         private readonly IHttpContextAccessor _context;
         private readonly ServiceInventory _services;
@@ -33,16 +33,16 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
         }
 
         /// <inheritdoc />
-        public override void Receive()
+        public override RemoteService Receive(GetEndPointsRequest instance)
         {
             var url = this.GetBaseUrl();
             var endPoints = _services.EndPoints.Where(e => e.Public && !string.IsNullOrWhiteSpace(e.Path) && !e.Path.StartsWith("_"));
 
-            this.Respond(new RemoteService
+            return new RemoteService
             {
                 Path = _context.HttpContext.Request.Scheme + "://" + _context.HttpContext.Request.Host,
-                EndPoints = endPoints.Select(e => new RemoteEndPoint(e.Path, url + "/" + e.Path)).ToList()
-            });
+                EndPoints = endPoints.Select(e => new RemoteEndPoint(e.Path, url + "/" + e.Path, e.Method)).ToList()
+            };
         }
 
         private string GetBaseUrl()

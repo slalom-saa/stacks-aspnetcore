@@ -7,7 +7,7 @@ using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.AspNetCore.EndPoints
 {
-    [EndPoint("_system/ip-address")]
+    [EndPoint("_system/ip-address", Method = "GET", Public = false)]
     public class GetIPAddress : EndPoint
     {
         public override void Receive()

@@ -18,10 +18,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Slalom.Stacks.AspNetCore.Swagger.Application;
-using Slalom.Stacks.AspNetCore.Swagger.Generator;
 using Slalom.Stacks.AspNetCore.Swagger.UI.Application;
 using Slalom.Stacks.Services;
 using Autofac;
+using Slalom.Stacks.Configuration;
 
 namespace Slalom.Stacks.AspNetCore.Messaging
 {
@@ -53,10 +53,8 @@ namespace Slalom.Stacks.AspNetCore.Messaging
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    var current = services
-                        .Hosts.SelectMany(e => e.Services)
-                        .Where(e => e.EndPoints.Any(x => x.Public))
-                        .SelectMany(e => e.EndPoints)
+                    var current = services.EndPoints
+                    .Where(x => x.Public)
                         .Select(e => e.Path)
                         .Select(e => e?.Split('/').FirstOrDefault())
                         .Distinct()
@@ -64,7 +62,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
                         .OrderBy(e => e);
                     foreach (var service in current)
                     {
-                        c.SwaggerEndpoint($"/swagger/{service}/swagger.json", $"{service.ToTitleCase()} API");
+                        c.SwaggerEndpoint($"/swagger/{service}/swagger.json", Stack.Container.Resolve<Application>().Title);
                     }
                 });
             }

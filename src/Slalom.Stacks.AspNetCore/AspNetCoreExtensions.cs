@@ -67,8 +67,7 @@ namespace Slalom.Stacks.AspNetCore
             stack.Use(e =>
             {
                 e.RegisterType<WebRequestContext>().As<IRequestContext>().AsSelf();
-                e.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
-                e.RegisterType<HttpDispatcher>().AsImplementedInterfaces().AsSelf().SingleInstance();
+                e.RegisterType<HttpRouter>().AsImplementedInterfaces().AsSelf().SingleInstance();
             });
 
             var options = new AspNetCoreOptions();

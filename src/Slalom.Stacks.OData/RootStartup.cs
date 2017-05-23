@@ -55,7 +55,6 @@ namespace Slalom.Stacks.OData
             Stack.Use(builder =>
             {
                 builder.RegisterType<WebRequestContext>().As<IRequestContext>();
-                builder.RegisterType<StacksSwaggerProvider>().AsImplementedInterfaces();
                 builder.Populate(services);
             });
 
@@ -70,8 +69,8 @@ namespace Slalom.Stacks.OData
 
             app.UseSwaggerUI(c =>
             {
-                var services = Stack.GetServices().Hosts.SelectMany(e => e.Services).Where(e => e.EndPoints.Any(x => x.Public)).SelectMany(e => e.EndPoints).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
-                .Distinct().Where(e => e != null && !e.StartsWith("_")).OrderBy(e => e);
+                var services = Stack.GetServices().EndPoints.Where(x => x.Public).Select(e => e.Path).Select(e => e?.Split('/').FirstOrDefault())
+                    .Distinct().Where(e => e != null && !e.StartsWith("_")).OrderBy(e => e);
                 foreach (var service in services)
                 {
 

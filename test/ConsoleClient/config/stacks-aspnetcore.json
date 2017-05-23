@@ -1,0 +1,9 @@
+﻿{
+  "stacks": {
+    "aspnetCore": {
+      "cookieAuthentication": {
+        "dataProtectionKey": "Stacks"
+      }
+    }
+  }
+}

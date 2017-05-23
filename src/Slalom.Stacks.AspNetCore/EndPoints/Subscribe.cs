@@ -14,7 +14,7 @@ namespace Slalom.Stacks.AspNetCore.EndPoints
     /// <summary>
     /// Creates an event subscription and published raised events to the specified URL.
     /// </summary>
-    [EndPoint("_system/events/subscribe")]
+    [EndPoint("_system/events/subscribe", Public = false)]
     public class Subscribe : EndPoint<SubscribeRequest>
     {
         private readonly HttpEventPublisher _publisher;

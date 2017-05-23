@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,29 +7,27 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Slalom.Stacks.AspNetCore.Swagger.Model;
+using Slalom.Stacks.Serialization;
+using Slalom.Stacks.Services.EndPoints;
+using Slalom.Stacks.Services.Messaging;
+using Slalom.Stacks.Services.OpenApi;
 
 namespace Slalom.Stacks.AspNetCore.Swagger.Application
 {
     public class SwaggerMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ISwaggerProvider _swaggerProvider;
-        private readonly JsonSerializer _swaggerSerializer;
-        private readonly SwaggerOptions _options;
+        private readonly IMessageGateway _messages;
         private readonly TemplateMatcher _requestMatcher;
 
         public SwaggerMiddleware(
             RequestDelegate next,
-            ISwaggerProvider swaggerProvider,
-            IOptions<MvcJsonOptions> mvcJsonOptions,
-            SwaggerOptions options)
+            IMessageGateway messages,
+            IOptions<MvcJsonOptions> mvcJsonOptions)
         {
             _next = next;
-            _swaggerProvider = swaggerProvider;
-            _swaggerSerializer = SwaggerSerializerFactory.Create(mvcJsonOptions);
-            _options = options;
-            _requestMatcher = new TemplateMatcher(TemplateParser.Parse(options.RouteTemplate), new RouteValueDictionary());
+            _messages = messages;
+            _requestMatcher = new TemplateMatcher(TemplateParser.Parse("swagger/{documentName}/swagger.json"), new RouteValueDictionary());
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -40,19 +39,9 @@ namespace Slalom.Stacks.AspNetCore.Swagger.Application
                 return;
             }
 
-            var basePath = string.IsNullOrEmpty(httpContext.Request.PathBase)
-                ? "/"
-                : httpContext.Request.PathBase.ToString();
+            var document = _messages.Send(new GetOpenApiRequest(httpContext.Request.Host.ToString(), httpContext.Request.Query.ContainsKey("admin"))).Result.Response as OpenApiDocument;
 
-            var swagger = _swaggerProvider.GetSwagger(documentName, httpContext.Request.Host.ToString(), basePath, new[] { "http", "https" });
-
-            // One last opportunity to modify the Swagger Document - this time with request context
-            foreach (var filter in _options.PreSerializeFilters)
-            {
-                filter(swagger, httpContext.Request);
-            }
-
-            RespondWithSwaggerJson(httpContext.Response, swagger);
+            this.RespondWithSwaggerJson(httpContext.Response, document);
         }
 
         private bool RequestingSwaggerDocument(HttpRequest request, out string documentName)
@@ -67,14 +56,14 @@ namespace Slalom.Stacks.AspNetCore.Swagger.Application
             return true;
         }
 
-        private void RespondWithSwaggerJson(HttpResponse response, SwaggerDocument swagger)
+        private void RespondWithSwaggerJson(HttpResponse response, OpenApiDocument swagger)
         {
-            response.StatusCode = 200;
-            response.ContentType = "application/json";
-
-            using (var writer = new StreamWriter(response.Body))
+            using (var inner = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(swagger, DefaultSerializationSettings.Instance))))
             {
-                _swaggerSerializer.Serialize(writer, swagger);
+                response.ContentType = "application/json";
+                response.StatusCode = 200;
+                response.ContentLength = inner.ToArray().Length;
+                inner.CopyTo(response.Body);
             }
         }
     }

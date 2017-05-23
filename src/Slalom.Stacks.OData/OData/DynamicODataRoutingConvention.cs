@@ -24,7 +24,13 @@ namespace Slalom.Stacks.OData.OData
 
         public string SelectController(ODataPath odataPath, System.Net.Http.HttpRequestMessage request)
         {
-            return "DynamicOData";
+            var seg = odataPath.Segments.FirstOrDefault();
+            if (seg is EntitySetPathSegment
+                || seg is UnboundFunctionPathSegment
+                || seg is UnboundActionPathSegment
+            )
+                return "DynamicOData";
+            return null;
         }
     }
 }
