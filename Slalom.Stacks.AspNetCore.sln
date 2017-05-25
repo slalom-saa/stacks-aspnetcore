@@ -1,31 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EFD11F14-E82A-4EC8-9898-B34083DE79D1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{B7D3459D-8D7E-4C90-B84C-014ED4F7A985}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
 		assets\Package.ps1 = assets\Package.ps1
 		README.md = README.md
-		assets\Restore.ps1 = assets\Restore.ps1
-		assets\stacks.ruleset = assets\stacks.ruleset
-		assets\stylecop.json = assets\stylecop.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{EF9A631E-5ACB-43D4-B12D-DECA9F21E64A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConsoleClient", "test\ConsoleClient\ConsoleClient.xproj", "{82C9EA67-D618-4A55-9844-6862D153D6B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClient", "test\ConsoleClient\ConsoleClient.csproj", "{82C9EA67-D618-4A55-9844-6862D153D6B2}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WebClient", "test\WebClient\WebClient.xproj", "{F1877379-6572-4758-8184-F2CDCF5200D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebClient", "test\WebClient\WebClient.csproj", "{F1877379-6572-4758-8184-F2CDCF5200D9}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Slalom.Stacks.AspNetCore", "src\Slalom.Stacks.AspNetCore\Slalom.Stacks.AspNetCore.xproj", "{C322214B-2E36-415C-8589-DDF22F0D2EF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slalom.Stacks.AspNetCore", "src\Slalom.Stacks.AspNetCore\Slalom.Stacks.AspNetCore.csproj", "{C322214B-2E36-415C-8589-DDF22F0D2EF7}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConsoleClient2", "test\ConsoleClient2\ConsoleClient2.xproj", "{01127374-8B7E-4E3C-B6E2-70AF608F161C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClient2", "test\ConsoleClient2\ConsoleClient2.csproj", "{01127374-8B7E-4E3C-B6E2-70AF608F161C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Slalom.Stacks.OData", "src\Slalom.Stacks.OData\Slalom.Stacks.OData.xproj", "{7EA037FB-25AC-4CE3-A833-F7F52A927305}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slalom.Stacks.OData", "src\Slalom.Stacks.OData\Slalom.Stacks.OData.csproj", "{7EA037FB-25AC-4CE3-A833-F7F52A927305}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
