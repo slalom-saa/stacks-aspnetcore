@@ -17,7 +17,7 @@ namespace Slalom.Stacks.AspNetCore.Messaging
     /// Provides a request context for AspNetCore.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Services.Messaging.Request" />
-    public class AspNetCoreRequestContext : Request
+    public class AspNetCoreRequestContext : RequestContext
     {
         private readonly IHttpContextAccessor _accessor;
 
