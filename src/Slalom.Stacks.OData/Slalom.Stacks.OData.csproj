@@ -7,12 +7,14 @@
     <AssemblyName>Slalom.Stacks.OData</AssemblyName>
     <PackageId>Slalom.Stacks.OData</PackageId>
     <PackageTags>slalom;stacks;odata;</PackageTags>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/slalom-saa/stacks/blob/master/LICENSE</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Version>1.9.3</Version>
+    <Description>Contains components for hosting endpoints in ASP.NET Core and Kestrel with additional middleware to expose IQueryable reponses as OData.</Description>
+    <PackageProjectUrl>https://github.com/slalom-saa/stacks</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

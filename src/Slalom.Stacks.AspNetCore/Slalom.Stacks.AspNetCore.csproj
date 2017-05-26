@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>This package contains bootstrapping and middleware for AspNetCore and Stacks.</Description>
+    <Description>Contains components for hosting endpoints in ASP.NET Core and Kestrel.</Description>
     <VersionPrefix>1.8.16</VersionPrefix>
     <Authors>Stacks Contributors</Authors>
     <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
