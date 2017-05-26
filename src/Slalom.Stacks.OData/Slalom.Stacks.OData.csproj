@@ -6,7 +6,7 @@
     <TargetFramework>net461</TargetFramework>
     <AssemblyName>Slalom.Stacks.OData</AssemblyName>
     <PackageId>Slalom.Stacks.OData</PackageId>
-    <PackageTags>slalom;stacks;odata;</PackageTags>
+    <PackageTags>slalom;stacks;aspnetcore;odata;</PackageTags>
     <PackageLicenseUrl>https://github.com/slalom-saa/stacks/blob/master/LICENSE</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
