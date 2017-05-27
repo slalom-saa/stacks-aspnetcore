@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Contains components for hosting endpoints in ASP.NET Core and Kestrel.</Description>
-    <VersionPrefix>1.8.16</VersionPrefix>
+    <VersionPrefix>1.9.5</VersionPrefix>
     <Authors>Stacks Contributors</Authors>
     <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.9.3</Version>
+    <Version>1.9.5</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Slalom.Stacks" Version="1.9.5" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.3.1" />
@@ -42,7 +43,6 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.1.0" />
-    <PackageReference Include="Slalom.Stacks" Version="1.9.3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
